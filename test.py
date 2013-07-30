@@ -24,15 +24,15 @@ class TestObjectNet(unittest.TestCase):
   def test_calculate_withAddNeuron(self):
     ann = Ann.ObjectNet(2,2)
     ann.addNeuron()
-    ann.input( [1,2] )
+    ann.input( [7,2] )
     ann.hidden[0].addSynapse( ann.inputs[0], 3)
     ann.hidden[0].addSynapse( ann.inputs[1], 4)
     ann.outputs[0].addSynapse( ann.hidden[0], 5)
     ann.outputs[1].addSynapse( ann.hidden[0], 6)
     ann.calculate(2)
-    l11 = Ann.logistic(11)
-    self.assertEqual( Ann.logistic(l11*5), ann.outputs[0].val)
-    self.assertEqual( Ann.logistic(l11*6), ann.outputs[1].val)
+    L_29 = Ann.logistic(29)
+    self.assertEqual( Ann.logistic(L_29*5), ann.outputs[0].val)
+    self.assertEqual( Ann.logistic(L_29*6), ann.outputs[1].val)
     
 class TestArrayNet(unittest.TestCase):
   def test_settingInputs(self):

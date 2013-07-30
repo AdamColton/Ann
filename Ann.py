@@ -41,12 +41,12 @@ class Neuron:
     self.val = logistic(self._val)
     
 class ArrayNet:
-  def __init__(self, inputs, outputs):
-    neurons = inputs + outputs
+  def __init__(self, inputs, outputs, hidden = 0):
+    neurons = inputs + outputs + hidden
     self.inputs = inputs
     self.outputs = outputs
     self.neurons = [0 for i in range(neurons)]
-    self.synapses = [ [0 for j in range(neurons)] for i in range(outputs)]
+    self.synapses = [ [0 for j in range(neurons)] for i in range(neurons-inputs)]
   def input(self, input):
     if ( len(input) != self.inputs): return False
     for i in range(self.inputs):
