@@ -54,12 +54,21 @@ class ArrayNet:
   def calculate(self):
     newVals = [self.neurons[i] for i in range(self.inputs)]
     neurons = len(self.neurons)
-    for i in range(neurons - self.inputs):
+    for nonInputs in range(neurons - self.inputs):
       newVal = 0
-      for j in range(neurons):
-        if i+self.inputs == j :
-          newVal += self.synapses[i][j]
-        else :
-          newVal += self.synapses[i][j] * self.neurons[j]
+      for neuron in range(neurons):
+        if nonInputs+self.inputs == neuron :
+          newVal += self.synapses[nonInputs][neuron]
+        else:
+          newVal += self.synapses[nonInputs][neuron] * self.neurons[neuron]
       newVals.append(logistic(newVal))
     self.neurons = newVals
+  def addNeurons(self, neuronsToAdd = 1):
+    oldNonInputNeuronCount = len(self.neurons) - self.inputs
+    self.neurons += [0 for i in range(neuronsToAdd)]
+    for i in range(oldNonInputNeuronCount):
+      self.synapses[i] += [0 for j in range(neuronsToAdd)]
+    newNonInputNeuronCount = oldNonInputNeuronCount + neuronsToAdd
+    neurons = newNonInputNeuronCount + self.inputs
+    for i in range(neuronsToAdd):
+      self.synapses.append( [0 for j in range(neurons)] )

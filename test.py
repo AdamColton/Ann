@@ -55,4 +55,15 @@ class TestArrayNet(unittest.TestCase):
     ann.calculate()
     self.assertEqual( Ann.logistic(2*5+3*11), ann.neurons[2])
     self.assertEqual( Ann.logistic(2*7+3*13), ann.neurons[3])
+  def test_calculate_advanced(self):
+    ann = Ann.ArrayNet(2,2)
+    ann.input( [2,3] )
+    ann.synapses[0][0] = 5
+    ann.synapses[0][1] = 11
+    ann.synapses[1][0] = 7
+    ann.synapses[1][1] = 13
+    ann.addNeurons(4)
+    ann.calculate()
+    self.assertEqual( Ann.logistic(2*5+3*11), ann.neurons[2])
+    self.assertEqual( Ann.logistic(2*7+3*13), ann.neurons[3])
 unittest.main()
