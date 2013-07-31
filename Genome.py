@@ -15,9 +15,9 @@ class Gene:
         
 class Pattern:
   def __init__(self, inputs, outputs, hidden, density):
-    self.inputs = [Neuron() for i in range(inputs)]
-    self.outputs = [Neuron() for i in range(outputs)]
-    self.hidden = [Neuron() for i in range(hidden)]
+    self.inputs = [PatternNeuron() for i in range(inputs)]
+    self.outputs = [PatternNeuron() for i in range(outputs)]
+    self.hidden = [PatternNeuron() for i in range(hidden)]
     for hidden in self.hidden:
       for input in self.inputs:
         if random.random() < density:
@@ -33,10 +33,26 @@ class Pattern:
         if random.random() < density:
           ouput.addSynapse(input, random.random())
           
-class Neuron:
+class PatternNeuron:
   def __init__(self, val = 0, bias = 0):
     self.synapses = []
     self.val = val
     self.bias = bias
   def addSynapse(self, neuron, weight):
     self.synapses.append( (neuron, weight) )
+    
+class Scaffold:
+  def __init__(self, inputs, outputs, patterns, network):
+    self.mapping = {}
+    
+    self.inputs = []
+    for neuron in patterns[0].inputs:
+      scaffoldNeuron = ScaffoldNeuron()
+      self.inputs.append(scaffoldNeuron)
+      self.mapping[neuron] = scaffoldNeuron
+    for pattern in patterns[1:]:
+      
+
+class ScaffoldNeuron:
+  def __init__(self, neuralNode = Null):
+    self.neuralNode = neuralNode
