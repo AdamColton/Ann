@@ -1,4 +1,5 @@
 import Ann
+import Genome
 import unittest
 
 class TestHelperFunctions(unittest.TestCase):
@@ -66,4 +67,9 @@ class TestArrayNet(unittest.TestCase):
     ann.calculate()
     self.assertEqual( Ann.logistic(2*5+3*11), ann.neurons[2])
     self.assertEqual( Ann.logistic(2*7+3*13), ann.neurons[3])
+    
+class TestGenome(unittest.TestCase):
+  def test_genome(self):
+    genome = Genome.Genome(2,2)
+    
 unittest.main()
