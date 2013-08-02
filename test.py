@@ -76,12 +76,4 @@ class TestGenome(unittest.TestCase):
     genome.apply(ann)
     self.assertTrue(  len(ann.hidden) > 0 )
     
-def ObjectNet_demo_str():
-    genome = Genome.Genome()
-    ann = Ann.ObjectNet(4,4)
-    genome.apply(ann)
-    print( str(ann) )
-    
-#unittest.main()
-
-ObjectNet_demo_str()
+unittest.main()

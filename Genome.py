@@ -9,7 +9,43 @@ class Genome:
     self.genes = [Gene(self) for i in range(10)]
   def apply(self, network):
     for gene in self.genes:
-      Scaffold(gene.patterns, network)
+      self._applyGene(gene.patterns, network)
+  def _applyGene(self, patterns, network):
+    mapping = {}
+    
+    numberOfInputs = min( len(network.inputs), len(patterns[0].inputs) )
+    inputs = [network.inputs[i] for i in range(numberOfInputs)]
+    for i in range(len(patterns[0].inputs)):
+      mapping['0_' + patterns[0].inputs[i].id] = inputs[i%numberOfInputs]
+    
+    numberOfOutputs = min( len(network.outputs), len(patterns[-1].outputs) )
+    outputs = [network.outputs[i] for i in range(numberOfOutputs)]
+    for i in range(len(patterns[-1].outputs)):
+      mapping[str(len(patterns)-1) + '_' + patterns[-1].outputs[i].id] = outputs[i%numberOfOutputs]
+    
+    self._mapHiddenNodes(patterns, network, mapping)
+    self._mapIOnodes(patterns, network, mapping)
+    self._mapSynapses(patterns, mapping)
+  def _mapHiddenNodes(self, patterns, network, mapping):
+    for i in range(len(patterns)):
+      for hidden in patterns[i].hidden:
+        mapping[str(i) + "_" + hidden.id] = network.addNeuron()
+  def _mapIOnodes(self, patterns, network, mapping):
+    for i in range(len(patterns)-1):
+      outputs = patterns[i].outputs
+      inputs = patterns[i+1].inputs
+      numberOfNeurons = min(len(outputs), len(inputs))
+      neurons = [network.addNeuron() for i in range(numberOfNeurons)]
+      for j in range(len(outputs)):
+        mapping[str(i) + "_" + outputs[j].id] = neurons[j%numberOfNeurons]
+      for j in range(len(inputs)):
+        mapping[str(i+1) + "_" + inputs[j].id] = neurons[j%numberOfNeurons]
+  def _mapSynapses(self, patterns, mapping):
+    for i in range(len(patterns)):
+      for neuron in patterns[i].neurons:
+        for synapse in neuron.synapses:
+          synapseNeuron = mapping[str(i) +  '_' + synapse[0].id]
+          mapping[str(i) +  '_' + neuron.id].addSynapse(synapseNeuron, synapse[1])
 
 class Gene:    
     def __init__(self, parent):
@@ -46,43 +82,3 @@ class PatternNeuron:
     self.id = str(random.randint(0,2**30))
   def addSynapse(self, neuron, weight):
     self.synapses.append( (neuron, weight) )
-    
-class Scaffold:
-  def __init__(self, patterns, network):
-    inputs = network.inputs
-    outputs = network.outputs
-    self.mapping = {}
-    
-    numberOfInputs = min( len(inputs), len(patterns[0].inputs) )
-    self.inputs = [inputs[i] for i in range(numberOfInputs)]
-    for i in range(len(patterns[0].inputs)):
-      self.mapping['0_' + patterns[0].inputs[i].id] = self.inputs[i%numberOfInputs]
-    
-    numberOfOutputs = min( len(outputs), len(patterns[-1].outputs) )
-    self.outputs = [outputs[i] for i in range(numberOfOutputs)]
-    for i in range(len(patterns[-1].outputs)):
-      self.mapping[str(len(patterns)-1) + '_' + patterns[-1].outputs[i].id] = self.outputs[i%numberOfOutputs]
-    
-    self._mapHiddenNodes(patterns, network)
-    self._mapIOnodes(patterns, network)
-    self._mapSynapses(patterns)
-  def _mapHiddenNodes(self, patterns, network):
-    for i in range(len(patterns)):
-      for hidden in patterns[i].hidden:
-        self.mapping[str(i) + "_" + hidden.id] = network.addNeuron()
-  def _mapIOnodes(self, patterns, network):
-    for i in range(len(patterns)-1):
-      outputs = patterns[i].outputs
-      inputs = patterns[i+1].inputs
-      numberOfNeurons = min(len(outputs), len(inputs))
-      neurons = [network.addNeuron() for i in range(numberOfNeurons)]
-      for j in range(len(outputs)):
-        self.mapping[str(i) + "_" + outputs[j].id] = neurons[j%numberOfNeurons]
-      for j in range(len(inputs)):
-        self.mapping[str(i+1) + "_" + inputs[j].id] = neurons[j%numberOfNeurons]
-  def _mapSynapses(self, patterns):
-    for i in range(len(patterns)):
-      for neuron in patterns[i].neurons:
-        for synapse in neuron.synapses:
-          synapseNeuron = self.mapping[str(i) +  '_' + synapse[0].id]
-          self.mapping[str(i) +  '_' + neuron.id].addSynapse(synapseNeuron, synapse[1])
