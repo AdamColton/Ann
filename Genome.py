@@ -5,7 +5,6 @@ import Ann
 """
 Todos:
 * Pull magic numbers out into constants
-* Input/Output mapping for Genes
 * Gene mutation
 ** New genes
 ** remove pattern
@@ -31,24 +30,20 @@ class Genome:
   def generate(self):
     ann = Ann.ObjectNet(self.inputs, self.outputs)
     for gene in self.genes:
-      self._applyGene(gene.patterns, ann)
+      self._applyGene(gene, ann)
     return ann
-  def _applyGene(self, patterns, network):
+  def _applyGene(self, gene, network):
     mapping = {}
     
-    numberOfInputs = min( len(network.inputs), len(patterns[0].inputs) )
-    inputs = [network.inputs[i] for i in range(numberOfInputs)]
-    for i in range(len(patterns[0].inputs)):
-      mapping['0_' + patterns[0].inputs[i].id] = inputs[i%numberOfInputs]
+    for i in range(len(gene.patterns[0].inputs)):
+      mapping['0_' + gene.patterns[0].inputs[i].id] = network.inputs[ gene.inputMap[i] ]
     
-    numberOfOutputs = min( len(network.outputs), len(patterns[-1].outputs) )
-    outputs = [network.outputs[i] for i in range(numberOfOutputs)]
-    for i in range(len(patterns[-1].outputs)):
-      mapping[str(len(patterns)-1) + '_' + patterns[-1].outputs[i].id] = outputs[i%numberOfOutputs]
+    for i in range(len(gene.patterns[-1].outputs)):
+      mapping[str(len(gene.patterns)-1) + '_' + gene.patterns[-1].outputs[i].id] = network.outputs[ gene.outputMap[i] ]
     
-    self._mapHiddenNodes(patterns, network, mapping)
-    self._mapIOnodes(patterns, network, mapping)
-    self._mapSynapses(patterns, mapping)
+    self._mapHiddenNodes(gene.patterns, network, mapping)
+    self._mapIOnodes(gene.patterns, network, mapping)
+    self._mapSynapses(gene.patterns, mapping)
   def _mapHiddenNodes(self, patterns, network, mapping):
     for i in range(len(patterns)):
       for hidden in patterns[i].hidden:
@@ -78,6 +73,10 @@ class Gene:
       patterns = random.randint(1,5)
       self.genome = genome
       self.patterns = [random.choice(genome.patterns) for i in range(patterns)]
+      inputs = range(genome.inputs)
+      self.inputMap = [random.choice(inputs) for i in self.patterns[0].inputs]
+      outputs = range(genome.outputs)
+      self.outputMap = [random.choice(outputs) for i in self.patterns[-1].outputs]
         
         
 class Pattern:
@@ -138,3 +137,5 @@ class CopyPatternNeuron(PatternNeuron):
 class CopyGene(Gene):
   def __init__(self, genome, parent):
     self.patterns = [genome.patterns[ parent.genome.patterns.index(pattern) ] for pattern in parent.patterns]
+    self.inputMap = [i for i in parent.inputMap]
+    self.outputMap = [i for i in parent.outputMap]

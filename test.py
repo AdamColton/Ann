@@ -71,6 +71,8 @@ class TestArrayNet(unittest.TestCase):
 class TestGenome(unittest.TestCase):
   def test_genome(self):
     genome = Genome.Genome(4,4)
+    self.assertEqual( len(genome.genes[0].inputMap), len(genome.genes[0].patterns[0].inputs))
+    self.assertEqual( len(genome.genes[0].outputMap), len(genome.genes[0].patterns[-1].outputs))
     ann = genome.generate()
     self.assertTrue(  len(ann.hidden) > 0 )
   def test_copy(self):
