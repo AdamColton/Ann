@@ -1,14 +1,32 @@
 import random
 import Ann
 
-# Right now there are a lot of magic numbers in here. These need to be pulled out.
+
+"""
+Todos:
+* Pull magic numbers out into constants
+* Input/Output mapping for Genes
+* Gene mutation
+** New genes
+** remove pattern
+** add pattern
+** copy & remap
+** remap
+* Pattern mutation
+** Perturb default vals
+** Perturb biases
+
+I would like a mechanism where a gene expression passes data into a gene at the time that it is expressed.
+Think of fingers and toes. Toes are different than fingers and they all have different lengths, but they
+could all be expressed with the same gene. They just need a finger/toe switch and a size parameter.
+"""
 
 class Genome:
   def __init__(self, inputs, outputs):
     self.inputs = inputs
     self.outputs = outputs
     patterns = 10
-    self.patterns = [Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5),random.random()*0.5 + 0.25) for i in range(patterns)]
+    self.patterns = [Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5)) for i in range(patterns)]
     self.genes = [Gene(self) for i in range(10)]
   def generate(self):
     ann = Ann.ObjectNet(self.inputs, self.outputs)
@@ -63,31 +81,21 @@ class Gene:
         
         
 class Pattern:
-  def __init__(self, inputs, outputs, hidden, density):
+  def __init__(self, inputs, outputs, hidden):
     self.inputs = [PatternNeuron() for i in range(inputs)]
     self.outputs = [PatternNeuron() for i in range(outputs)]
     self.hidden = [PatternNeuron() for i in range(hidden)]
     self.neurons = self.inputs + self.outputs + self.hidden
     for hidden in self.hidden:
       for input in self.inputs:
-        if random.random() < density:
-          hidden.addSynapse(input, 0)
+        hidden.addSynapse(input, 0)
       for ouput in self.outputs:
-        if random.random() < density:
-          ouput.addSynapse(hidden, 0)
+        ouput.addSynapse(hidden, 0)
       for h2hidden in self.outputs:
-        if h2hidden != hidden and random.random() < density:
-          hidden.addSynapse(h2hidden, 0)
+        hidden.addSynapse(h2hidden, 0)
     for ouput in self.outputs:
       for input in self.inputs:
-        if random.random() < density:
-          ouput.addSynapse(input, 0)
-    #guarentee that every hidden and output neuron has at least one synapse
-    possibleSynapseNeurons = self.inputs + self.hidden
-    for neuron in self.outputs + self.hidden:
-      while len(neuron.synapses) == 0:
-        synapseNeuron = random.choice(possibleSynapseNeurons)
-        if synapseNeuron != neuron : neuron.addSynapse(synapseNeuron, 0)
+        ouput.addSynapse(input, 0)
   def perturbSynapseWeights(self, maxDisturbance, disturbanceProbability):
     for neuron in self.neurons:
       for synapse in neuron.synapses:
