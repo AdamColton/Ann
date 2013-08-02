@@ -62,7 +62,7 @@ class TestArrayNet(unittest.TestCase):
     ann.synapses[0][0] = 5
     ann.synapses[0][1] = 11
     ann.synapses[1][0] = 7
-    ann.synapses[1][1] = 13
+    ann.synapses[1][1] = 13 
     ann.addNeurons(4)
     ann.calculate()
     self.assertEqual( Ann.logistic(2*5+3*11), ann.neurons[2])
@@ -75,5 +75,17 @@ class TestGenome(unittest.TestCase):
     self.assertEqual( len(ann.hidden), 0)
     genome.apply(ann)
     self.assertTrue(  len(ann.hidden) > 0 )
+  def test_copy(self):
+    genome1 = Genome.Genome()
+    genome1.perturbSynapseWeights(1,1)
+    genome2 = Genome.CopyGenome(genome1)
+    ann1 = Ann.ObjectNet(4,4)
+    ann2 = Ann.ObjectNet(4,4)
+    genome1.apply(ann1)
+    genome2.apply(ann2)
+    ann1.calculate(50)
+    ann2.calculate(50)
+    self.assertEqual(ann1.outputs[0].val, ann2.outputs[0].val)
+    self.assertEqual(genome1.patterns[0].hidden[0].synapses[0][1], genome2.patterns[0].hidden[0].synapses[0][1])
     
 unittest.main()
