@@ -25,7 +25,31 @@ class ObjectNet:
         neuron.step()
       for neuron in self.outputs:
         neuron.step()
+  def __str__(self):
+    retStr = [" == Inputs =="]
+    for i in range(len(self.inputs)):
+      retStr.append( "I_" + str(i) + ": " + str(self.inputs[i].val))
       
+    retStr.append(" == Hidden ==")
+    for i in range(len(self.hidden)):
+      hidden = self.hidden[i]
+      retStr.append( "H_" + str(i) + ": " + str(hidden.val) + ", " + str(hidden.bias) )
+      for synapseNeuron, weight in hidden.synapses:
+        retStr.append("   " + self._getStrId(synapseNeuron) + ": " + str(weight) )
+    
+    retStr.append(" == Output ==")
+    for i in range(len(self.outputs)):
+      output = self.outputs[i]
+      retStr.append( "H_" + str(i) + ": " + str(output.val) + ", " + str(output.bias))
+      for synapseNeuron, weight in output.synapses:
+        retStr.append("   " + self._getStrId(synapseNeuron) + ": " + str(weight) )
+    return "\n".join(retStr)
+  def _getStrId(self, neuron):
+    if neuron in self.inputs: return "I_" + str(self.inputs.index(neuron))
+    if neuron in self.outputs: return "O_" + str(self.outputs.index(neuron))
+    if neuron in self.hidden: return "H_" + str(self.hidden.index(neuron))
+    return "?_?"
+    
 class Neuron:
   def __init__(self, val = 0, bias = 0):
     self.synapses = []
