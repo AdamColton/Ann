@@ -4,13 +4,17 @@ class Genome:
   def __init__(self, inputs, outputs):
     self.inputs = inputs
     self.outputs = outputs
-    fragments = 10
-    self.fragments = [Pattern(random.randint(0,5),random.randint(0,5),random.randint(0,5),random.random()*0.5 + 0.25) for i in range(fragments)]
+    patterns = 10
+    self.patterns = [Pattern(random.randint(1,5),random.randint(0,5),random.randint(1,5),random.random()*0.5 + 0.25) for i in range(patterns)]
     self.genes = [Gene(self) for i in range(10)]
+  def apply(self, network):
+    for gene in self.genes:
+      Scaffold(gene.patterns, network)
 
 class Gene:    
     def __init__(self, parent):
-      pass
+      patterns = random.randint(1,5)
+      self.patterns = [random.choice(parent.patterns) for i in range(patterns)]
         
         
 class Pattern:
@@ -43,20 +47,25 @@ class PatternNeuron:
     self.synapses.append( (neuron, weight) )
     
 class Scaffold:
-  def __init__(self, inputs, outputs, patterns, network):
+  def __init__(self, patterns, network):
+    inputs = network.inputs
+    outputs = network.outputs
     self.mapping = {}
     #if there's more neural inputs than pattern[0] inputs -> ignore extra neural inputs
     #if there's more pattern[0] inputs, than neural inputs, multiple pattern[0] inputs will map to one neural inputs
     numberOfInputs = min( len(inputs), len(patterns[0].inputs) )
     self.inputs = [inputs[i] for i in range(numberOfInputs)]
-    for i in range(len(pattern[0].inputs)):
+    for i in range(len(patterns[0].inputs)):
       self.mapping['0_' + patterns[0].inputs[i].id] = self.inputs[i%numberOfInputs]
     
     numberOfOutputs = min( len(outputs), len(patterns[-1].outputs) )
     self.outputs = [outputs[i] for i in range(numberOfOutputs)]
     for i in range(len(patterns[-1].outputs)):
       self.mapping[str(len(patterns)-1) + '_' + patterns[-1].outputs[i].id] = self.outputs[i%numberOfOutputs]
-      
+    
+    self._mapHiddenNodes(patterns, network)
+    self._mapIOnodes(patterns, network)
+    
   def _mapHiddenNodes(self, patterns, network):
     for i in range(len(patterns)):
       for hidden in patterns[i].hidden:
@@ -64,8 +73,8 @@ class Scaffold:
   def _mapIOnodes(self, patterns, network):
     for i in range(len(patterns)-1):
       outputs = patterns[i].outputs
-      inputs = pattern[i+1].inputs
-      numberOfNeurons = min(outputs, inputs)
+      inputs = patterns[i+1].inputs
+      numberOfNeurons = min(len(outputs), len(inputs))
       neurons = [network.addNeuron() for i in range(numberOfNeurons)]
       for j in range(len(outputs)):
         self.mapping[str(i) + "_" + outputs[j].id] = neurons[j%numberOfNeurons]

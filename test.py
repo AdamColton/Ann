@@ -70,6 +70,8 @@ class TestArrayNet(unittest.TestCase):
     
 class TestGenome(unittest.TestCase):
   def test_genome(self):
-    genome = Genome.Genome(2,2)
+    genome = Genome.Genome(4,4)
+    ann = Ann.ObjectNet(4,4)
+    genome.apply(ann)
     
 unittest.main()
