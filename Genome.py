@@ -1,15 +1,20 @@
 import random
+import Ann
 
 # Right now there are a lot of magic numbers in here. These need to be pulled out.
 
 class Genome:
-  def __init__(self):
+  def __init__(self, inputs, outputs):
+    self.inputs = inputs
+    self.outputs = outputs
     patterns = 10
     self.patterns = [Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5),random.random()*0.5 + 0.25) for i in range(patterns)]
     self.genes = [Gene(self) for i in range(10)]
-  def apply(self, network):
+  def generate(self):
+    ann = Ann.ObjectNet(self.inputs, self.outputs)
     for gene in self.genes:
-      self._applyGene(gene.patterns, network)
+      self._applyGene(gene.patterns, ann)
+    return ann
   def _applyGene(self, patterns, network):
     mapping = {}
     
@@ -99,6 +104,8 @@ class PatternNeuron:
     
 class CopyGenome(Genome):
   def __init__(self, parent):
+    self.inputs = parent.inputs
+    self.outputs = parent.outputs
     self.patterns = [CopyPattern(pattern) for pattern in parent.patterns]
     self.genes = [CopyGene(self, gene) for gene in parent.genes]
     

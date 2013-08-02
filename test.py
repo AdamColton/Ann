@@ -70,19 +70,15 @@ class TestArrayNet(unittest.TestCase):
     
 class TestGenome(unittest.TestCase):
   def test_genome(self):
-    genome = Genome.Genome()
-    ann = Ann.ObjectNet(4,4)
-    self.assertEqual( len(ann.hidden), 0)
-    genome.apply(ann)
+    genome = Genome.Genome(4,4)
+    ann = genome.generate()
     self.assertTrue(  len(ann.hidden) > 0 )
   def test_copy(self):
-    genome1 = Genome.Genome()
+    genome1 = Genome.Genome(4,4)
     genome1.perturbSynapseWeights(1,1)
     genome2 = Genome.CopyGenome(genome1)
-    ann1 = Ann.ObjectNet(4,4)
-    ann2 = Ann.ObjectNet(4,4)
-    genome1.apply(ann1)
-    genome2.apply(ann2)
+    ann1 = genome1.generate()
+    ann2 = genome2.generate()
     ann1.calculate(50)
     ann2.calculate(50)
     self.assertEqual(ann1.outputs[0].val, ann2.outputs[0].val)
