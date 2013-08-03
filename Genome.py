@@ -10,7 +10,6 @@ Todos:
 ** copy & remap
 ** remap
 * Pattern mutation
-** Perturb default vals
 ** Perturb biases
 
 I would like a mechanism where a gene expression passes data into a gene at the time that it is expressed.
@@ -67,7 +66,8 @@ class Genome:
       self.perturbSynapseWeights,
       self.newGene,
       self.newPattern,
-      self.perturbInitialVals
+      self.perturbInitialVals,
+      self.perturbBiases
     ])()
   def perturbSynapseWeights(self, maxDisturbance = 0.01, disturbanceProbability = 0.01):
     for pattern in self.patterns:
@@ -113,6 +113,10 @@ class Pattern:
   def perturbInitialVals(self, maxDisturbance, disturbanceProbability):
     for neuron in self.neurons:
       if random.random < disturbanceProbability : neuron.val += maxDisturbance * (random.random()*2 + 1)
+  def perturbBiases(self, maxDisturbance, disturbanceProbability):
+    for neuron in self.neurons:
+      if random.random < disturbanceProbability : neuron.bias += maxDisturbance * (random.random()*2 + 1)    
+      
 class PatternNeuron:
   def __init__(self, val = 0, bias = 0):
     self.synapses = []
