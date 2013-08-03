@@ -97,5 +97,19 @@ class TestGenome(unittest.TestCase):
     ann2.calculate(50)
     self.assertEqual(ann1.outputs[0].val, ann2.outputs[0].val)
     self.assertEqual(genome1.patterns[0].hidden[0].synapses[0][1], genome2.patterns[0].hidden[0].synapses[0][1])
+  def test_perturbWeights(self):
+    genome1 = Genome.Genome(4,4)
+    genome1.perturbSynapseWeights(1,1)
+    genome2 = Genome.CopyGenome(genome1)
+    genome2.perturbSynapseWeights(0.1, 0.5)
+    ann1 = genome1.generate()
+    ann2 = genome2.generate()
+    ann1.calculate(50)
+    ann2.calculate(50)
+    self.assertNotEqual(ann1.outputs[0].val, ann2.outputs[0].val)
+  def test_mutate(self):
+    genome = Genome.Genome(4,4)
+    genome.mutate()
+    ann = genome.generate()
     
 unittest.main()

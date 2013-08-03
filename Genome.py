@@ -6,9 +6,7 @@ import Ann
 Todos:
 * Pull magic numbers out into constants
 * Gene mutation
-** New genes
 ** remove pattern
-** add pattern
 ** copy & remap
 ** remap
 * Pattern mutation
@@ -21,11 +19,11 @@ could all be expressed with the same gene. They just need a finger/toe switch an
 """
 
 class Genome:
+  patterns = 10
   def __init__(self, inputs, outputs):
     self.inputs = inputs
     self.outputs = outputs
-    patterns = 10
-    self.patterns = [Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5)) for i in range(patterns)]
+    self.patterns = [Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5)) for i in range(Genome.patterns)]
     self.genes = [Gene(self) for i in range(10)]
   def generate(self):
     ann = Ann.ObjectNet(self.inputs, self.outputs)
@@ -64,10 +62,24 @@ class Genome:
         for synapse in neuron.synapses:
           synapseNeuron = mapping[str(i) +  '_' + synapse[0].id]
           mapping[str(i) +  '_' + neuron.id].addSynapse(synapseNeuron, synapse[1])
-  def perturbSynapseWeights(self, maxDisturbance = 0.01, disturbanceProbability = 0.1):
+  def mutate(self):
+    random.choice([
+      self.perturbSynapseWeights,
+      self.newGene,
+      self.newPattern,
+      self.perturbInitialVals
+    ])()
+  def perturbSynapseWeights(self, maxDisturbance = 0.01, disturbanceProbability = 0.01):
     for pattern in self.patterns:
       pattern.perturbSynapseWeights(maxDisturbance, disturbanceProbability)
-
+  def perturbInitialVals(self, maxDisturbance = 0.01, disturbanceProbability = 0.01):
+    for pattern in self.patterns:
+      pattern.perturbInitialVals(maxDisturbance, disturbanceProbability)
+  def newGene(self):
+    self.genes.append(Gene(self))
+  def newPattern(self):
+    self.patterns.append( Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5)) )
+  
 class Gene:    
     def __init__(self, genome):
       patterns = random.randint(1,5)
@@ -77,7 +89,6 @@ class Gene:
       self.inputMap = [random.choice(inputs) for i in self.patterns[0].inputs]
       outputs = range(genome.outputs)
       self.outputMap = [random.choice(outputs) for i in self.patterns[-1].outputs]
-        
         
 class Pattern:
   def __init__(self, inputs, outputs, hidden):
@@ -99,7 +110,9 @@ class Pattern:
     for neuron in self.neurons:
       for synapse in neuron.synapses:
         if random.random() < disturbanceProbability : synapse[1] += maxDisturbance*( random.random()*2 - 1 )
-          
+  def perturbInitialVals(self, maxDisturbance, disturbanceProbability):
+    for neuron in self.neurons:
+      if random.random < disturbanceProbability : neuron.val += maxDisturbance * (random.random()*2 + 1)
 class PatternNeuron:
   def __init__(self, val = 0, bias = 0):
     self.synapses = []
