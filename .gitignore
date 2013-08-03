@@ -187,6 +187,8 @@ $RECYCLE.BIN/
 ## Python
 #############
 
+output.txt
+
 *.py[co]
 __pycache__/
 

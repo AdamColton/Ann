@@ -75,6 +75,9 @@ class Genome:
   def perturbInitialVals(self, maxDisturbance = 0.01, disturbanceProbability = 0.01):
     for pattern in self.patterns:
       pattern.perturbInitialVals(maxDisturbance, disturbanceProbability)
+  def perturbBiases(self, maxDisturbance = 0.01, disturbanceProbability = 0.01):
+    for pattern in self.patterns:
+      pattern.perturbBiases(maxDisturbance, disturbanceProbability)
   def newGene(self):
     self.genes.append(Gene(self))
   def newPattern(self):
@@ -112,10 +115,10 @@ class Pattern:
         if random.random() < disturbanceProbability : synapse[1] += maxDisturbance*( random.random()*2 - 1 )
   def perturbInitialVals(self, maxDisturbance, disturbanceProbability):
     for neuron in self.neurons:
-      if random.random < disturbanceProbability : neuron.val += maxDisturbance * (random.random()*2 + 1)
+      if random.random() < disturbanceProbability : neuron.val += maxDisturbance * (random.random()*2 + 1)
   def perturbBiases(self, maxDisturbance, disturbanceProbability):
     for neuron in self.neurons:
-      if random.random < disturbanceProbability : neuron.bias += maxDisturbance * (random.random()*2 + 1)    
+      if random.random() < disturbanceProbability : neuron.bias += maxDisturbance * (random.random()*2 + 1)    
       
 class PatternNeuron:
   def __init__(self, val = 0, bias = 0):

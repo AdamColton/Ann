@@ -22,6 +22,9 @@ class TestObjectNet(unittest.TestCase):
     ann.input( [2] )
     ann.calculate()
     self.assertEqual( Ann.logistic(6), ann.outputs[0].val)
+  def test_withSingleHiddenNode(self):
+    ann = Ann.ObjectNet(1,1)
+    hidden = ann.addNeuron()
   def test_calculate_withAddNeuron(self):
     ann = Ann.ObjectNet(2,2)
     ann.addNeuron()
@@ -31,9 +34,8 @@ class TestObjectNet(unittest.TestCase):
     ann.outputs[0].addSynapse( ann.hidden[0], 5)
     ann.outputs[1].addSynapse( ann.hidden[0], 6)
     ann.calculate(2)
-    L_29 = Ann.logistic(29)
-    self.assertEqual( Ann.logistic(L_29*5), ann.outputs[0].val)
-    self.assertEqual( Ann.logistic(L_29*6), ann.outputs[1].val)
+    self.assertEqual( Ann.logistic(5), ann.outputs[0].val)
+    self.assertEqual( Ann.logistic(6), ann.outputs[1].val)
   def test_arrayNet(self):
     ann = Ann.ObjectNet(2,2)
     ann.addNeuron()
@@ -97,16 +99,6 @@ class TestGenome(unittest.TestCase):
     ann2.calculate(50)
     self.assertEqual(ann1.outputs[0].val, ann2.outputs[0].val)
     self.assertEqual(genome1.patterns[0].hidden[0].synapses[0][1], genome2.patterns[0].hidden[0].synapses[0][1])
-  def test_perturbWeights(self):
-    genome1 = Genome.Genome(4,4)
-    genome1.perturbSynapseWeights(1,1)
-    genome2 = Genome.CopyGenome(genome1)
-    genome2.perturbSynapseWeights(0.1, 0.5)
-    ann1 = genome1.generate()
-    ann2 = genome2.generate()
-    ann1.calculate(50)
-    ann2.calculate(50)
-    self.assertNotEqual(ann1.outputs[0].val, ann2.outputs[0].val)
   def test_mutate(self):
     genome = Genome.Genome(4,4)
     genome.mutate()

@@ -8,7 +8,7 @@ logistic = lambda x: 1 / (1 + e**(-x))
 
 class ObjectNet:
   def __init__(self, inputs, outputs):
-    self.inputs = [Neuron() for i in range(inputs)]
+    self.inputs = [Neuron(0,0,True) for i in range(inputs)]
     self.outputs = [Neuron() for i in range(outputs)]
     self.hidden = []
   def input(self, input):
@@ -20,14 +20,11 @@ class ObjectNet:
     self.hidden.append(neuron)
     return neuron
   def calculate(self, steps = 1):
+    nonInputs = self.hidden + self.outputs
     for i in range(steps):
-      for neuron in self.hidden:
+      for neuron in nonInputs:
         neuron.calculate()
-      for neuron in self.outputs:
-        neuron.calculate()
-      for neuron in self.hidden:
-        neuron.step()
-      for neuron in self.outputs:
+      for neuron in nonInputs:
         neuron.step()
   def __str__(self):
     retStr = [" == Inputs =="]
@@ -59,7 +56,10 @@ class ObjectNet:
     inputs = len(self.inputs)
     for neuron in neurons:
       n = neurons.index(neuron)
-      arrayNet.neurons[n] = neuron.val
+      if n < arrayNet.inputs:
+        arrayNet.neurons[n] = neuron.val
+      else:
+        arrayNet.neurons[n] = neuron.activation
       n -= inputs
       if n >= 0:
         arrayNet.synapses[n][n] = neuron.bias
@@ -71,18 +71,24 @@ class ObjectNet:
         
     
 class Neuron:
-  def __init__(self, val = 0, bias = 0):
+  def __init__(self, val = 0, bias = 0, inputNeuron = False):
     self.synapses = []
     self.val = val
+    self.activation = round(val)
     self.bias = bias
+    self.inputNeuron = inputNeuron
   def addSynapse(self, neuron, weight):
     self.synapses.append( (neuron, weight) )
   def calculate(self):
     self._val = self.bias
     for neuron, weight in self.synapses:
-      self._val += neuron.val * weight
+      if neuron.inputNeuron:
+        self._val += neuron.val * weight
+      else:
+        self._val += neuron.activation * weight
   def step(self):
     self.val = logistic(self._val)
+    self.activation = round(self.val)
     
 class ArrayNet:
   def __init__(self, inputs, outputs, hidden = 0):
@@ -99,13 +105,15 @@ class ArrayNet:
     for iteration in range(iterations):
       newVals = [self.neurons[i] for i in range(self.inputs)]
       neurons = len(self.neurons)
+      hidden = neurons - self.inputs - self.outputs
       for nonInputs in range(neurons - self.inputs):
         newVal = 0
         for neuron in range(neurons):
           if nonInputs+self.inputs == neuron :
-            newVal += self.synapses[nonInputs][neuron]
+            newVal += self.synapses[nonInputs][neuron] # bias
           else:
             newVal += self.synapses[nonInputs][neuron] * self.neurons[neuron]
+        if nonInputs < hidden: newVal = round(newVal)
         newVals.append(logistic(newVal))
       self.neurons = newVals
   def addNeurons(self, neuronsToAdd = 1):
