@@ -49,6 +49,22 @@ class ObjectNet:
     if neuron in self.outputs: return "O_" + str(self.outputs.index(neuron))
     if neuron in self.hidden: return "H_" + str(self.hidden.index(neuron))
     return "?_?"
+  def arrayNet(self):
+    arrayNet = ArrayNet(len(self.inputs), len(self.outputs), len(self.hidden))
+    neurons = self.inputs + self.outputs + self.hidden
+    inputs = len(self.inputs)
+    for neuron in neurons:
+      n = neurons.index(neuron)
+      arrayNet.neurons[n] = neuron.val
+      n -= inputs
+      if n >= 0:
+        arrayNet.synapses[n][n] = neuron.bias
+        for synapse in neuron.synapses:
+          s = neurons.index(synapse[0])
+          v = synapse[1]
+          arrayNet.synapses[n][s] = v
+    return arrayNet
+        
     
 class Neuron:
   def __init__(self, val = 0, bias = 0):
@@ -75,18 +91,19 @@ class ArrayNet:
     if ( len(input) != self.inputs): return False
     for i in range(self.inputs):
       self.neurons[i] = input[i]
-  def calculate(self):
-    newVals = [self.neurons[i] for i in range(self.inputs)]
-    neurons = len(self.neurons)
-    for nonInputs in range(neurons - self.inputs):
-      newVal = 0
-      for neuron in range(neurons):
-        if nonInputs+self.inputs == neuron :
-          newVal += self.synapses[nonInputs][neuron]
-        else:
-          newVal += self.synapses[nonInputs][neuron] * self.neurons[neuron]
-      newVals.append(logistic(newVal))
-    self.neurons = newVals
+  def calculate(self, iterations = 1):
+    for iteration in range(iterations):
+      newVals = [self.neurons[i] for i in range(self.inputs)]
+      neurons = len(self.neurons)
+      for nonInputs in range(neurons - self.inputs):
+        newVal = 0
+        for neuron in range(neurons):
+          if nonInputs+self.inputs == neuron :
+            newVal += self.synapses[nonInputs][neuron]
+          else:
+            newVal += self.synapses[nonInputs][neuron] * self.neurons[neuron]
+        newVals.append(logistic(newVal))
+      self.neurons = newVals
   def addNeurons(self, neuronsToAdd = 1):
     oldNonInputNeuronCount = len(self.neurons) - self.inputs
     self.neurons += [0 for i in range(neuronsToAdd)]
