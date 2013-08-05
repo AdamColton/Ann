@@ -101,7 +101,48 @@ class TestGenome(unittest.TestCase):
     self.assertEqual(genome1.patterns[0].hidden[0].synapses[0][1], genome2.patterns[0].hidden[0].synapses[0][1])
   def test_mutate(self):
     genome = Genome.Genome(4,4)
-    genome.mutate()
+    for i in range(100):
+      genome.mutate()
     ann = genome.generate()
+  def test_newGene(self):
+    genome = Genome.Genome(4,4)
+    genes = len( genome.genes )
+    genome.newGene()
+    self.assertEqual(genes + 1, len(genome.genes))
+  def test_newPattern(self):
+    genome = Genome.Genome(4,4)
+    patterns = len(genome.patterns)
+    genome.newPattern()
+    self.assertEqual(patterns + 1, len(genome.patterns))
+  def test_patternNeuronStr(self):
+    pn1 = Genome.PatternNeuron(1.1,1.2)
+    pn1.id = "pn1"
+    pn2 = Genome.PatternNeuron(2.1,2.2)
+    pn2.id = "pn2"
+    pn3 = Genome.PatternNeuron(3.1,3.2)
+    pn3.id = "pn3"
+    pn4 = Genome.PatternNeuron(4.1,4.2)
+    pn4.id = "pn4"
+    pn1.addSynapse(pn2, 2)
+    pn1.addSynapse(pn3, 3)
+    pn1.addSynapse(pn4, 4)
+    self.assertEqual("n:1.1:1.2:pn1\ns:pn2:2\ns:pn3:3\ns:pn4:4", str(pn1))
+  def test_patternStr(self):
+    pn1 = Genome.PatternNeuron(1.1,1.2)
+    pn1.id = "pn1"
+    pn2 = Genome.PatternNeuron(2.1,2.2)
+    pn2.id = "pn2"
+    pn3 = Genome.PatternNeuron(3.1,3.2)
+    pn3.id = "pn3"
+    pn4 = Genome.PatternNeuron(4.1,4.2)
+    pn4.id = "pn4"
+    pn1.addSynapse(pn2, 2)
+    pn1.addSynapse(pn3, 3)
+    pn1.addSynapse(pn4, 4)
+    pattern = Genome.Pattern(0, 0, 0)
+    pattern.outputs = [pn1]
+    pattern.inputs = [pn2,pn3,pn4]
+    pattern.neurons = pattern.outputs + pattern.inputs
+    self.assertEqual( "i:pn2:pn3:pn4\no:pn1\nh:\nn:1.1:1.2:pn1\ns:pn2:2\ns:pn3:3\ns:pn4:4n:2.1:2.2:pn2\nn:3.1:3.2:pn3\nn:4.1:4.2:pn4\n", str(pattern))
     
 unittest.main()
