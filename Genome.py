@@ -3,20 +3,6 @@ import Ann
 
 
 """
-Todos:
-* Pull magic numbers out into constants
-* Genome Mutation
-** Remove Unused Pattern
-* Gene mutation
-** remove pattern
-** copy & remap
-** remap
-** Add pattern
-* Pattern mutation
-** Perturb biases
-
-* Pull Genome from file
-
 I would like a mechanism where a gene expression passes data into a gene at the time that it is expressed.
 Think of fingers and toes. Toes are different than fingers and they all have different lengths, but they
 could all be expressed with the same gene. They just need a finger/toe switch and a size parameter.
@@ -73,7 +59,12 @@ class Genome:
       self.perturbInitialVals,
       self.perturbBiases,
       self.addNeuron,
-      self.removeNeuron
+      self.removeNeuron,
+      self.remapGene,
+      self.copyGene,
+      self.addPatternToGene,
+      self.removePatternFromGene,
+      self.removeUnusedPattern
     ])()
   def perturbSynapseWeights(self, maxDisturbance = 0.01, disturbanceProbability = 0.01):
     for pattern in self.patterns:
@@ -95,8 +86,33 @@ class Genome:
     return "Added a new pattern"
   def addNeuron(self):
     random.choice(self.patterns).addNeuron()
+    return "Added a Neuron"
   def removeNeuron(self):
     random.choice(self.patterns).removeNeuron()
+    return "Removed a neuron"
+  def remapGene(self):
+    random.choice(self.genes).remap()
+    return "Remapped a Genes input and output"
+  def copyGene(self):
+    gene = CopyGene(self, random.choice(self.genes))
+    gene.remap()
+    self.genes.append(gene)
+    return "Copied a gene and remapped its inputs and outputs"
+  def addPatternToGene(self):
+    random.choice(self.genes).addPattern()
+    return "Added a pattern to a gene"
+  def removePatternFromGene(self):
+    random.choice(self.genes).removePattern()
+    return "Removed a pattern from a gene"
+  def removeUnusedPattern(self):
+    unusedPatterns = [pattern for pattern in self.patterns]
+    for gene in self.genes:
+      for pattern in gene.patterns:
+        if pattern in unusedPatterns:
+          unusedPatterns.remove(pattern)
+    if len(unusedPatterns) > 0:
+      self.patterns.remove( random.choice(unusedPatterns) )
+    return "Removed an unused pattern"
   def __str__(self):
     retStr = ":".join(["g", str(self.inputs), str(self.outputs)]) + "\n"
     retStr += "".join([str(pattern) for pattern in self.patterns])
@@ -104,19 +120,31 @@ class Genome:
     return retStr
   
 class Gene:    
-    def __init__(self, genome, patterns = None):
-      if patterns == None: patterns = random.randint(1,5)
+    def __init__(self, genome, numberOfPatterns = None):
+      if numberOfPatterns == None: numberOfPatterns = random.randint(1,5)
       self.genome = genome
-      self.patterns = [random.choice(genome.patterns) for i in range(patterns)]
-      inputs = range(genome.inputs)
-      self.inputMap = [random.choice(inputs) for i in self.patterns[0].inputs]
-      outputs = range(genome.outputs)
-      self.outputMap = [random.choice(outputs) for i in self.patterns[-1].outputs]
+      self.patterns = [random.choice(genome.patterns) for i in range(numberOfPatterns)]
+      self.remap()
     def __str__(self):
       retStr = "x:" + ":".join([str(i) for i in self.inputMap]) + "\n"
       retStr += "y:" + ":".join([str(i) for i in self.outputMap]) + "\n"
       retStr += "z:" + ":".join([str(self.genome.patterns.index(pattern)) for pattern in self.patterns]) + "\n"
       return retStr
+    def remap(self):
+      inputs = range(self.genome.inputs)
+      self.inputMap = [random.choice(inputs) for i in self.patterns[0].inputs]
+      outputs = range(self.genome.outputs)
+      self.outputMap = [random.choice(outputs) for i in self.patterns[-1].outputs]
+    def addPattern(self):
+      pattern = random.choice(self.genome.patterns)
+      position = random.randint(0,len(self.patterns))
+      self.patterns.insert(position, pattern)
+      if position == 0 or position + 1 == len(self.patterns): self.remap()
+    def removePattern(self):
+      if len(self.patterns) == 1 : return
+      position = random.randint(0,len(self.patterns)-1)
+      self.patterns.pop(position)
+      if position == 0 or position == len(self.patterns): self.remap()
         
 class Pattern:
   def __init__(self, inputs, outputs, hidden):
@@ -210,6 +238,7 @@ class CopyGene(Gene):
     self.patterns = [genome.patterns[ parent.genome.patterns.index(pattern) ] for pattern in parent.patterns]
     self.inputMap = [i for i in parent.inputMap]
     self.outputMap = [i for i in parent.outputMap]
+    self.genome = genome
     
 class GenomeFactory(Genome):
   def __init__(self, genomeString):
