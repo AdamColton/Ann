@@ -22,12 +22,11 @@ could all be expressed with the same gene. They just need a finger/toe switch an
 """
 
 class Genome:
-  patterns = 10
-  def __init__(self, inputs, outputs):
+  def __init__(self, inputs, outputs, patterns = 10, genes = 10):
     self.inputs = inputs
     self.outputs = outputs
-    self.patterns = [Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5)) for i in range(Genome.patterns)]
-    self.genes = [Gene(self) for i in range(10)]
+    self.patterns = [Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5)) for i in range(patterns)]
+    self.genes = [Gene(self) for i in range(genes)]
   def generate(self):
     ann = Ann.ObjectNet(self.inputs, self.outputs)
     for gene in self.genes:
@@ -92,15 +91,14 @@ class Genome:
     self.patterns.append( Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5)) )
     return "Added a new pattern"
   def __str__(self):
-    retStr = "a:" + str(self.inputs) + "\n"
-    retStr += "b:" + str(self.outputs) + "\n"
+    retStr = ":".join(["g", str(self.inputs), str(self.outputs)]) + "\n"
     retStr += "".join([str(pattern) for pattern in self.patterns])
     retStr += "".join([str(gene) for gene in self.genes])
     return retStr
   
 class Gene:    
-    def __init__(self, genome):
-      patterns = random.randint(1,5)
+    def __init__(self, genome, patterns = None):
+      if patterns == None: patterns = random.randint(1,5)
       self.genome = genome
       self.patterns = [random.choice(genome.patterns) for i in range(patterns)]
       inputs = range(genome.inputs)
@@ -140,9 +138,7 @@ class Pattern:
     for neuron in self.neurons:
       if random.random() < disturbanceProbability : neuron.bias += maxDisturbance * (random.random()*2 + 1)    
   def __str__(self):
-    retStr = "i:" + ":".join([neuron.id for neuron in self.inputs]) + "\n"
-    retStr += "o:" + ":".join([neuron.id for neuron in self.outputs]) + "\n"
-    retStr += "h:" + ":".join([neuron.id for neuron in self.hidden]) + "\n"
+    retStr = ":".join(["p", str(len(self.inputs)), str(len(self.outputs))]) + "\n"
     retStr += "".join([str(neuron) for neuron in self.neurons])
     return retStr
       
@@ -195,67 +191,82 @@ class GenomeFactory(Genome):
     self.genes = []
     self.patterns = []
     genomeString = genomeString.split("\n")
-    genomeString = [line.split(":") for line in genomeString]
+    genomeString = [line.split(":") for line in genomeString][:-1]
     control = {
-      'n': self._addNeuron
+      'n': self._addNeuron,
       's': self._saveSynapseData,
-      'a': self._setInputs,
-      'b': self._setOuputs,
+      'g': self._setIO,
       'x': self._addGene,
       'y': self._geneOuputMap,
       'z': self._genePatternMap,
-      'i': self._addPattern,
-      'o': self._setPatternOuputMap,
-      'h': self._setPatternHiddenMap
+      'p': self._addPattern
     }
-    self._synapses = []
-    self._geneToPatternMaps = {}
-    self._patternMaps = {}
+    self._patternSynapseMap = {}
+    self._geneToPatternMaps = []
+    self._patternNeuronMap = {}
     self._cursor = {}
     for command in genomeString:
       control[command[0]](command[1:])
     self._completeGeneToPatternMap()
+    self._completePatternSynapseMap()
+    self._patternIOs()
+    del self._patternSynapseMap
+    del self._geneToPatternMaps
+    del self._patternNeuronMap
+    del self._cursor
   def _addNeuron(self, data):
-    self._cursor['neuron'] = NeuronFactory(float(data[0]), float(data[1]), data[2])
-    self._cursor['pattern'].neurons.append( self._cursor['neuron'] )
+    neuron = NeuronFactory(float(data[0]), float(data[1]), data[2])
+    self._cursor['neuron'] = neuron
+    self._cursor['pattern'].neurons.append(neuron)
+    self._patternNeuronMap[self._cursor['pattern']][neuron.id] = neuron
   def _saveSynapseData(self, data):
-    self.synapses.append((self._cursor['neuron'], float(data[0]), float(data[1])))
-  def _setInputs(self, data):
+    self._patternSynapseMap[self._cursor['pattern']].append((self._cursor['neuron'], data[0], float(data[1])))
+  def _setIO(self, data):
     self.inputs = int(data[0])
-  def _setOuputs(self, data):
     self.outputs = int(data[1])
   def _addGene(self, data):
-    self._cursor['gene'] = GeneFactory(data)
+    self._cursor['gene'] = GeneFactory(data, self)
     self.genes.append( self._cursor['gene'] )
   def _geneOuputMap(self, data):
-    self._cursor['gene'].outputMap = [int(i) for i in inputMap]
+    self._cursor['gene'].outputMap = [int(i) for i in data]
   def _genePatternMap(self, data):
-    self._geneToPatternMaps = (self._cursor['gene'], data)
+    self._geneToPatternMaps.append( (self._cursor['gene'], [int(i) for i in data]) )
   def _addPattern(self, data):
-    self._cursor['pattern'] = PatternFactory()
-    self.patterns.append( self._cursor['pattern'] )
-    self._patternMaps[ self._cursor['pattern'] ] = {'input' : data}
-  def _setPatternOuputMap(self, data):
-    self._patternMaps[ self._cursor['pattern'] ] = {'output' : data}
-  def _setPatternHiddenMap(self, data):
-    self._patternMaps[ self._cursor['pattern'] ] = {'hidden' : data}
+    pattern = PatternFactory()
+    self._cursor['pattern'] = pattern
+    pattern.inputs = int(data[0])
+    pattern.outputs = int(data[1])
+    self.patterns.append( pattern )
+    self._patternNeuronMap[pattern] = {}
+    self._patternSynapseMap[pattern] = []
   def _completeGeneToPatternMap(self):
     for gene, data in self._geneToPatternMaps:
       for index in data:
         gene.patterns.append( self.patterns[index] )
-      
+  def _completePatternSynapseMap(self):
+    for pattern in self.patterns:
+      for neuron, id, weight in self._patternSynapseMap[pattern]:
+        neuron.addSynapse( self._patternNeuronMap[pattern][id] ,weight)
+  def _patternIOs(self):
+    for pattern in self.patterns:
+      inputs = pattern.inputs
+      outputs = pattern.outputs
+      pattern.inputs = pattern.neurons[:inputs]
+      pattern.outputs = pattern.neurons[inputs:inputs+outputs]
+      pattern.hidden = pattern.neurons[inputs+outputs:]
     
 class NeuronFactory(PatternNeuron):
-  def __init__(self, val, bias, id)
+  def __init__(self, val, bias, id):
     self.synapses = []
     self.val = val
     self.bias = bias
     self.id = id
     
 class GeneFactory(Gene):
-  def __init__(self, inputMap):
+  def __init__(self, inputMap, genome):
     self.inputMap = [int(i) for i in inputMap]
     self.patterns = []
+    self.genome = genome
     
 class PatternFactory(Pattern):
   def __init__(self):
