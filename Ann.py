@@ -1,7 +1,3 @@
-"""
-I think I did this completely wrong, I need to back and add activations
-"""
-
 e = 2.71828182845904523536
 logistic = lambda x: 1 / (1 + e**(-x))
 

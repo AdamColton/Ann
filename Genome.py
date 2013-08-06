@@ -1,7 +1,6 @@
 import random
 import Ann
 
-
 """
 I would like a mechanism where a gene expression passes data into a gene at the time that it is expressed.
 Think of fingers and toes. Toes are different than fingers and they all have different lengths, but they
