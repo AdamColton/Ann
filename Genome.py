@@ -206,15 +206,18 @@ class GenomeFactory(Genome):
       'z': self._genePatternMap,
       'i': self._addPattern,
       'o': self._setPatternOuputMap,
-      'h': self._setPatternInputMap
+      'h': self._setPatternHiddenMap
     }
     self._synapses = []
-    self._patternMaps = []
+    self._geneToPatternMaps = {}
+    self._patternMaps = {}
     self._cursor = {}
     for command in genomeString:
       control[command[0]](command[1:])
+    self._completeGeneToPatternMap()
   def _addNeuron(self, data):
     self._cursor['neuron'] = NeuronFactory(float(data[0]), float(data[1]), data[2])
+    self._cursor['pattern'].neurons.append( self._cursor['neuron'] )
   def _saveSynapseData(self, data):
     self.synapses.append((self._cursor['neuron'], float(data[0]), float(data[1])))
   def _setInputs(self, data):
@@ -227,13 +230,20 @@ class GenomeFactory(Genome):
   def _geneOuputMap(self, data):
     self._cursor['gene'].outputMap = [int(i) for i in inputMap]
   def _genePatternMap(self, data):
-    pass
+    self._geneToPatternMaps = (self._cursor['gene'], data)
   def _addPattern(self, data):
-    pass
+    self._cursor['pattern'] = PatternFactory()
+    self.patterns.append( self._cursor['pattern'] )
+    self._patternMaps[ self._cursor['pattern'] ] = {'input' : data}
   def _setPatternOuputMap(self, data):
-    pass
-  def _setPatternInputMap(self, data):
-    pass
+    self._patternMaps[ self._cursor['pattern'] ] = {'output' : data}
+  def _setPatternHiddenMap(self, data):
+    self._patternMaps[ self._cursor['pattern'] ] = {'hidden' : data}
+  def _completeGeneToPatternMap(self):
+    for gene, data in self._geneToPatternMaps:
+      for index in data:
+        gene.patterns.append( self.patterns[index] )
+      
     
 class NeuronFactory(PatternNeuron):
   def __init__(self, val, bias, id)
@@ -245,3 +255,8 @@ class NeuronFactory(PatternNeuron):
 class GeneFactory(Gene):
   def __init__(self, inputMap):
     self.inputMap = [int(i) for i in inputMap]
+    self.patterns = []
+    
+class PatternFactory(Pattern):
+  def __init__(self):
+    self.neurons = []
