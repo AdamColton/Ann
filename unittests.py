@@ -126,7 +126,7 @@ class TestGenome(unittest.TestCase):
     pn1.addSynapse(pn2, 2)
     pn1.addSynapse(pn3, 3)
     pn1.addSynapse(pn4, 4)
-    self.assertEqual("n:1.1:1.2:pn1\ns:pn2:2\ns:pn3:3\ns:pn4:4", str(pn1))
+    self.assertEqual("n:1.1:1.2:pn1\ns:pn2:2\ns:pn3:3\ns:pn4:4\n", str(pn1))
   def test_patternStr(self):
     pn1 = Genome.PatternNeuron(1.1,1.2)
     pn1.id = "pn1"
@@ -143,6 +143,6 @@ class TestGenome(unittest.TestCase):
     pattern.outputs = [pn1]
     pattern.inputs = [pn2,pn3,pn4]
     pattern.neurons = pattern.outputs + pattern.inputs
-    self.assertEqual( "i:pn2:pn3:pn4\no:pn1\nh:\nn:1.1:1.2:pn1\ns:pn2:2\ns:pn3:3\ns:pn4:4n:2.1:2.2:pn2\nn:3.1:3.2:pn3\nn:4.1:4.2:pn4\n", str(pattern))
+    self.assertEqual( "i:pn2:pn3:pn4\no:pn1\nh:\nn:1.1:1.2:pn1\ns:pn2:2\ns:pn3:3\ns:pn4:4\nn:2.1:2.2:pn2\nn:3.1:3.2:pn3\nn:4.1:4.2:pn4\n", str(pattern))
     
 unittest.main()

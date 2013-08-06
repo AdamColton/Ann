@@ -36,7 +36,7 @@ def view_mutations():
     
 def view_genome_str():
   genome = Genome.Genome(2,3)
-  for i in range(100):
+  for i in range(1000):
     genome.mutate()
   output(str(genome))
     

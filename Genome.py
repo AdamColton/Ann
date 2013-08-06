@@ -14,7 +14,6 @@ Todos:
 ** Add neuron
 ** remove neuron
 
-* Save Genome to file
 * Pull Genome from file
 
 I would like a mechanism where a gene expression passes data into a gene at the time that it is expressed.
@@ -190,3 +189,59 @@ class CopyGene(Gene):
     self.patterns = [genome.patterns[ parent.genome.patterns.index(pattern) ] for pattern in parent.patterns]
     self.inputMap = [i for i in parent.inputMap]
     self.outputMap = [i for i in parent.outputMap]
+    
+class GenomeFactory(Genome):
+  def __init__(self, genomeString):
+    self.genes = []
+    self.patterns = []
+    genomeString = genomeString.split("\n")
+    genomeString = [line.split(":") for line in genomeString]
+    control = {
+      'n': self._addNeuron
+      's': self._saveSynapseData,
+      'a': self._setInputs,
+      'b': self._setOuputs,
+      'x': self._addGene,
+      'y': self._geneOuputMap,
+      'z': self._genePatternMap,
+      'i': self._addPattern,
+      'o': self._setPatternOuputMap,
+      'h': self._setPatternInputMap
+    }
+    self._synapses = []
+    self._patternMaps = []
+    self._cursor = {}
+    for command in genomeString:
+      control[command[0]](command[1:])
+  def _addNeuron(self, data):
+    self._cursor['neuron'] = NeuronFactory(float(data[0]), float(data[1]), data[2])
+  def _saveSynapseData(self, data):
+    self.synapses.append((self._cursor['neuron'], float(data[0]), float(data[1])))
+  def _setInputs(self, data):
+    self.inputs = int(data[0])
+  def _setOuputs(self, data):
+    self.outputs = int(data[1])
+  def _addGene(self, data):
+    self._cursor['gene'] = GeneFactory(data)
+    self.genes.append( self._cursor['gene'] )
+  def _geneOuputMap(self, data):
+    self._cursor['gene'].outputMap = [int(i) for i in inputMap]
+  def _genePatternMap(self, data):
+    pass
+  def _addPattern(self, data):
+    pass
+  def _setPatternOuputMap(self, data):
+    pass
+  def _setPatternInputMap(self, data):
+    pass
+    
+class NeuronFactory(PatternNeuron):
+  def __init__(self, val, bias, id)
+    self.synapses = []
+    self.val = val
+    self.bias = bias
+    self.id = id
+    
+class GeneFactory(Gene):
+  def __init__(self, inputMap):
+    self.inputMap = [int(i) for i in inputMap]
