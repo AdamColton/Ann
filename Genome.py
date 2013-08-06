@@ -5,14 +5,15 @@ import Ann
 """
 Todos:
 * Pull magic numbers out into constants
+* Genome Mutation
+** Remove Unused Pattern
 * Gene mutation
 ** remove pattern
 ** copy & remap
 ** remap
+** Add pattern
 * Pattern mutation
 ** Perturb biases
-** Add neuron
-** remove neuron
 
 * Pull Genome from file
 
@@ -61,16 +62,18 @@ class Genome:
   def _mapSynapses(self, patterns, mapping):
     for i in range(len(patterns)):
       for neuron in patterns[i].neurons:
-        for synapse in neuron.synapses:
-          synapseNeuron = mapping[str(i) +  '_' + synapse[0].id]
-          mapping[str(i) +  '_' + neuron.id].addSynapse(synapseNeuron, synapse[1])
+        for otherNeuron in neuron.synapses:
+          synapseNeuron = mapping[str(i) +  '_' + otherNeuron.id]
+          mapping[str(i) +  '_' + neuron.id].addSynapse(synapseNeuron, neuron.synapses[otherNeuron])
   def mutate(self):
     return random.choice([
       self.perturbSynapseWeights,
       self.newGene,
       self.newPattern,
       self.perturbInitialVals,
-      self.perturbBiases
+      self.perturbBiases,
+      self.addNeuron,
+      self.removeNeuron
     ])()
   def perturbSynapseWeights(self, maxDisturbance = 0.01, disturbanceProbability = 0.01):
     for pattern in self.patterns:
@@ -90,6 +93,10 @@ class Genome:
   def newPattern(self):
     self.patterns.append( Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5)) )
     return "Added a new pattern"
+  def addNeuron(self):
+    random.choice(self.patterns).addNeuron()
+  def removeNeuron(self):
+    random.choice(self.patterns).removeNeuron()
   def __str__(self):
     retStr = ":".join(["g", str(self.inputs), str(self.outputs)]) + "\n"
     retStr += "".join([str(pattern) for pattern in self.patterns])
@@ -122,21 +129,39 @@ class Pattern:
         hidden.addSynapse(input, 0.0)
       for ouput in self.outputs:
         ouput.addSynapse(hidden, 0.0)
-      for h2hidden in self.outputs:
+      for h2hidden in self.hidden:
         hidden.addSynapse(h2hidden, 0.0)
     for ouput in self.outputs:
       for input in self.inputs:
         ouput.addSynapse(input, 0.0)
   def perturbSynapseWeights(self, maxDisturbance, disturbanceProbability):
     for neuron in self.neurons:
-      for synapse in neuron.synapses:
-        if random.random() < disturbanceProbability : synapse[1] += maxDisturbance*( random.random()*2 - 1 )
+      for synapseNeuron in neuron.synapses:
+        if random.random() < disturbanceProbability : neuron.synapses[synapseNeuron] += maxDisturbance*( random.random()*2 - 1)
   def perturbInitialVals(self, maxDisturbance, disturbanceProbability):
     for neuron in self.neurons:
       if random.random() < disturbanceProbability : neuron.val += maxDisturbance * (random.random()*2 + 1)
   def perturbBiases(self, maxDisturbance, disturbanceProbability):
     for neuron in self.neurons:
       if random.random() < disturbanceProbability : neuron.bias += maxDisturbance * (random.random()*2 + 1)    
+  def addNeuron(self):
+    neuron = PatternNeuron()
+    self.hidden.append( neuron )
+    self.neurons.append( neuron )
+    for input in self.inputs:
+      neuron.addSynapse(input, 0.0)
+    for ouput in self.outputs:
+      ouput.addSynapse(neuron, 0.0)
+    for hidden in self.hidden:
+      hidden.addSynapse(neuron, 0.0)
+      neuron.addSynapse(hidden, 0.0)
+  def removeNeuron(self):
+    if len(self.hidden) == 0: return
+    neuron = random.choice(self.hidden)
+    self.hidden.remove(neuron)
+    self.neurons.remove(neuron)
+    for otherNeuron in self.neurons:
+      if neuron in otherNeuron.synapses: del otherNeuron.synapses[neuron]
   def __str__(self):
     retStr = ":".join(["p", str(len(self.inputs)), str(len(self.outputs))]) + "\n"
     retStr += "".join([str(neuron) for neuron in self.neurons])
@@ -144,15 +169,15 @@ class Pattern:
       
 class PatternNeuron:
   def __init__(self, val = 0.0, bias = 0.0):
-    self.synapses = []
+    self.synapses = {}
     self.val = val
     self.bias = bias
     self.id = str(random.randint(0,2**30))
   def addSynapse(self, neuron, weight):
-    self.synapses.append( [neuron, weight] )
+    self.synapses[neuron] = weight
   def __str__(self):
     retStr = [ ":".join(["n", str(self.val), str(self.bias), self.id]) ]
-    retStr += [ ":".join(["s", neuron.id, str(weight)]) for neuron, weight in self.synapses]
+    retStr += [ ":".join(["s", neuron.id, str(self.synapses[neuron])]) for neuron in self.synapses]
     return "\n".join( retStr ) + "\n"
     
 class CopyGenome(Genome):
@@ -169,13 +194,13 @@ class CopyPattern(Pattern):
     self.hidden = [CopyPatternNeuron(patternNeuron) for patternNeuron in parent.hidden]
     self.neurons = self.inputs + self.outputs + self.hidden
     for neuron, parentNeuron in zip(self.neurons, parent.neurons):
-      for synapse in parentNeuron.synapses:
-        mappedNeuron = self.neurons[ parent.neurons.index(synapse[0]) ]
-        neuron.addSynapse(mappedNeuron, synapse[1])
+      for synapseNeuron in parentNeuron.synapses:
+        mappedNeuron = self.neurons[ parent.neurons.index(synapseNeuron) ]
+        neuron.addSynapse(mappedNeuron, parentNeuron.synapses[synapseNeuron])
     
 class CopyPatternNeuron(PatternNeuron):
   def __init__(self, parent):
-    self.synapses = []
+    self.synapses = {}
     self.val = parent.val
     self.bias = parent.bias
     self.id = str(random.randint(0,2**30))
@@ -257,7 +282,7 @@ class GenomeFactory(Genome):
     
 class NeuronFactory(PatternNeuron):
   def __init__(self, val, bias, id):
-    self.synapses = []
+    self.synapses = {}
     self.val = val
     self.bias = bias
     self.id = id

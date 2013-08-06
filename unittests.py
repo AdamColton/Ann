@@ -98,7 +98,9 @@ class TestGenome(unittest.TestCase):
     ann1.calculate(50)
     ann2.calculate(50)
     self.assertEqual(ann1.outputs[0].val, ann2.outputs[0].val)
-    self.assertEqual(genome1.patterns[0].hidden[0].synapses[0][1], genome2.patterns[0].hidden[0].synapses[0][1])
+    pattern1 = genome1.patterns[0]
+    pattern2 = genome2.patterns[0]
+    self.assertEqual(pattern1.hidden[0].synapses[pattern1.inputs[0]], pattern2.hidden[0].synapses[pattern2.inputs[0]])
   def test_mutate(self):
     genome = Genome.Genome(4,4)
     for i in range(100):
@@ -126,7 +128,11 @@ class TestGenome(unittest.TestCase):
     pn1.addSynapse(pn2, 2)
     pn1.addSynapse(pn3, 3)
     pn1.addSynapse(pn4, 4)
-    self.assertEqual("n:1.1:1.2:pn1\ns:pn2:2\ns:pn3:3\ns:pn4:4\n", str(pn1))
+    neuronString = str(pn1)
+    self.assertTrue("n:1.1:1.2:pn1\n" in neuronString)
+    self.assertTrue("s:pn2:2\n" in neuronString)
+    self.assertTrue("s:pn3:3\n" in neuronString)
+    self.assertTrue("s:pn4:4\n" in neuronString)
   def test_patternStr(self):
     pn1 = Genome.PatternNeuron(1.1,1.2)
     pn1.id = "pn1"
@@ -143,7 +149,18 @@ class TestGenome(unittest.TestCase):
     pattern.outputs = [pn1]
     pattern.inputs = [pn2,pn3,pn4]
     pattern.neurons = pattern.outputs + pattern.inputs
-    self.assertEqual( "p:3:1\nn:1.1:1.2:pn1\ns:pn2:2\ns:pn3:3\ns:pn4:4\nn:2.1:2.2:pn2\nn:3.1:3.2:pn3\nn:4.1:4.2:pn4\n", str(pattern))
+    patternString = str(pattern)
+    expectedSegments = ['p:3:1\n',
+      'n:1.1:1.2:pn1\n',
+      's:pn2:2\n',
+      's:pn3:3\n',
+      's:pn4:4\n',
+      'n:2.1:2.2:pn2\n',
+      'n:3.1:3.2:pn3\n',
+      'n:4.1:4.2:pn4\n'
+    ]
+    for segment in expectedSegments:
+      self.assertTrue(segment in patternString)
   def test_saveAndRestoreGenome(self):
     genome = Genome.Genome(1,1,0,0)
     pn1 = Genome.PatternNeuron(1.1,1.2)
@@ -168,12 +185,16 @@ class TestGenome(unittest.TestCase):
     genome.genes = [gene]
     genomeString = str(genome)
     clonedGenome = Genome.GenomeFactory(genomeString)
-    self.assertEqual(genomeString, str(clonedGenome))
+    clonedGenomeString = str(clonedGenome).split("\n")
+    for line in clonedGenomeString:
+      self.assertTrue(line in genomeString)
   def test_saveAndRestoreGenome2(self):
     genome1 = Genome.Genome(4,4)
     for i in range(100):
       genome1.mutate()
     genome1string = str(genome1)
     genome2 = Genome.GenomeFactory(genome1string)
-    self.assertEqual(genome1string, str( genome2 ) )
+    genome2string = str( genome2 ).split("\n")
+    for line in genome2string:
+      self.assertTrue(line in genome1string)
 unittest.main()
