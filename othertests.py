@@ -38,6 +38,15 @@ def view_genome_str():
   genome = Genome.Genome(2,3)
   for i in range(100):
     genome.mutate()
-  output(str(genome))
+    output(str(genome))
+
+def load_save_loop():
+  genome = Genome.Genome(4,4)
+  for i in range(100):
+    genome.mutate()
+  outStr = str(genome)
+  genome = Genome.GenomeFactory(outStr)
+  outStr += "----\n" + str(genome)
+  output( outStr )
     
-view_genome_str()
+load_save_loop()

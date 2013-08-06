@@ -119,14 +119,14 @@ class Pattern:
     self.neurons = self.inputs + self.outputs + self.hidden
     for hidden in self.hidden:
       for input in self.inputs:
-        hidden.addSynapse(input, 0)
+        hidden.addSynapse(input, 0.0)
       for ouput in self.outputs:
-        ouput.addSynapse(hidden, 0)
+        ouput.addSynapse(hidden, 0.0)
       for h2hidden in self.outputs:
-        hidden.addSynapse(h2hidden, 0)
+        hidden.addSynapse(h2hidden, 0.0)
     for ouput in self.outputs:
       for input in self.inputs:
-        ouput.addSynapse(input, 0)
+        ouput.addSynapse(input, 0.0)
   def perturbSynapseWeights(self, maxDisturbance, disturbanceProbability):
     for neuron in self.neurons:
       for synapse in neuron.synapses:
@@ -143,7 +143,7 @@ class Pattern:
     return retStr
       
 class PatternNeuron:
-  def __init__(self, val = 0, bias = 0):
+  def __init__(self, val = 0.0, bias = 0.0):
     self.synapses = []
     self.val = val
     self.bias = bias
