@@ -111,78 +111,45 @@ class TestGenome(unittest.TestCase):
     genes = len( genome.genes )
     genome.newGene()
     self.assertEqual(genes + 1, len(genome.genes))
-  def test_newPattern(self):
+  def test_newPattern1(self):
     genome = Genome.Genome(4,4)
     patterns = len(genome.patterns)
     genome.newPattern()
     self.assertEqual(patterns + 1, len(genome.patterns))
   def test_patternNeuronStr(self):
-    pn1 = Genome.PatternNeuron(1.1,1.2)
-    pn1.id = "pn1"
-    pn2 = Genome.PatternNeuron(2.1,2.2)
-    pn2.id = "pn2"
-    pn3 = Genome.PatternNeuron(3.1,3.2)
-    pn3.id = "pn3"
-    pn4 = Genome.PatternNeuron(4.1,4.2)
-    pn4.id = "pn4"
-    pn1.addSynapse(pn2, 2)
-    pn1.addSynapse(pn3, 3)
-    pn1.addSynapse(pn4, 4)
-    neuronString = str(pn1)
-    self.assertTrue("n:1.1:1.2:pn1\n" in neuronString)
-    self.assertTrue("s:pn2:2\n" in neuronString)
-    self.assertTrue("s:pn3:3\n" in neuronString)
-    self.assertTrue("s:pn4:4\n" in neuronString)
-  def test_patternStr(self):
-    pn1 = Genome.PatternNeuron(1.1,1.2)
-    pn1.id = "pn1"
-    pn2 = Genome.PatternNeuron(2.1,2.2)
-    pn2.id = "pn2"
-    pn3 = Genome.PatternNeuron(3.1,3.2)
-    pn3.id = "pn3"
-    pn4 = Genome.PatternNeuron(4.1,4.2)
-    pn4.id = "pn4"
-    pn1.addSynapse(pn2, 2)
-    pn1.addSynapse(pn3, 3)
-    pn1.addSynapse(pn4, 4)
-    pattern = Genome.Pattern(0, 0, 0)
-    pattern.outputs = [pn1]
-    pattern.inputs = [pn2,pn3,pn4]
-    pattern.neurons = pattern.outputs + pattern.inputs
-    patternString = str(pattern)
-    expectedSegments = ['p:3:1\n',
-      'n:1.1:1.2:pn1\n',
-      's:pn2:2\n',
-      's:pn3:3\n',
-      's:pn4:4\n',
-      'n:2.1:2.2:pn2\n',
-      'n:3.1:3.2:pn3\n',
-      'n:4.1:4.2:pn4\n'
+    genome = self.getConstructedGenome()
+    neuronString = str(genome.patterns[0].outputs[0])
+    expectedSegments = [
+      'n:4.1:4.2:0004',
+      's:0002:4.0',
+      's:0003:5.0',
+      's:0001:3.0'
     ]
     for segment in expectedSegments:
-      self.assertTrue(segment in patternString)
+      self.assertIn(segment, neuronString)
+  def test_patternStr(self):
+    genome = self.getConstructedGenome()
+    patternString = str(genome.patterns[0])
+    expectedSegments = [
+      'p:2:2',
+      'n:4.1:4.2:0004',
+      's:0003:5.0',
+      's:0001:3.0',
+      's:0002:4.0',
+      'n:5.1:5.2:0004',
+      's:0003:5.0',
+      's:0001:3.0',
+      's:0002:4.0',
+      'n:1.1:1.2:0001',
+      'n:2.1:2.2:0002',
+      'n:3.1:3.2:0003',
+      's:0001:1.0',
+      's:0002:2.0'
+    ]
+    for segment in expectedSegments:
+      self.assertIn(segment, patternString)
   def test_saveAndRestoreGenome(self):
-    genome = Genome.Genome(1,1,0,0)
-    pn1 = Genome.PatternNeuron(1.1,1.2)
-    pn1.id = "0001"
-    pn2 = Genome.PatternNeuron(2.1,2.2)
-    pn2.id = "0002"
-    pn3 = Genome.PatternNeuron(3.1,3.2)
-    pn3.id = "0003"
-    pn4 = Genome.PatternNeuron(4.1,4.2)
-    pn4.id = "0004"
-    pn1.addSynapse(pn2, 2.0)
-    pn1.addSynapse(pn3, 3.0)
-    pn1.addSynapse(pn4, 4.0)
-    pattern = Genome.Pattern(0, 0, 0)
-    pattern.outputs = [pn1]
-    pattern.inputs = [pn2,pn3,pn4]
-    pattern.neurons = pattern.outputs + pattern.inputs
-    genome.patterns = [pattern]
-    gene = Genome.Gene(genome, 1)
-    gene.inputMap = [0]
-    gene.outputMap = [0]
-    genome.genes = [gene]
+    genome = self.getConstructedGenome()
     genomeString = str(genome)
     clonedGenome = Genome.GenomeFactory(genomeString)
     clonedGenomeString = str(clonedGenome).split("\n")
@@ -197,4 +164,117 @@ class TestGenome(unittest.TestCase):
     genome2string = str( genome2 ).split("\n")
     for line in genome2string:
       self.assertTrue(line in genome1string)
+  def test_perturbSynapseWeights(self):
+    genome = self.getConstructedGenome()
+    before = genome.patterns[0].outputs[0].synapses[genome.patterns[0].hidden[0]]
+    genome.perturbSynapseWeights(1,0)
+    after = genome.patterns[0].outputs[0].synapses[genome.patterns[0].hidden[0]]
+    self.assertEqual(before, after)
+    genome.perturbSynapseWeights(1,1)
+    after = genome.patterns[0].outputs[0].synapses[genome.patterns[0].hidden[0]]
+    self.assertNotEqual(before, after)
+  def test_perturbInitialVals(self):
+    genome = self.getConstructedGenome()
+    before = genome.patterns[0].hidden[0].val
+    genome.perturbInitialVals(1,0)
+    after = genome.patterns[0].hidden[0].val
+    self.assertEqual(before, after)
+    genome.perturbInitialVals(1,1)
+    after = genome.patterns[0].hidden[0].val
+    self.assertNotEqual(before, after)
+  def test_perturbBiases(self):
+    genome = self.getConstructedGenome()
+    before = genome.patterns[0].hidden[0].bias
+    genome.perturbBiases(1,0)
+    after = genome.patterns[0].hidden[0].bias
+    self.assertEqual(before, after)
+    genome.perturbBiases(1,1)
+    after = genome.patterns[0].hidden[0].bias
+    self.assertNotEqual(before, after)
+  def test_addNeuron(self):
+    genome = self.getConstructedGenome()
+    before = len(genome.patterns[0].hidden)
+    genome.addNeuron()
+    after = len(genome.patterns[0].hidden)
+    self.assertEqual(before + 1, after)
+  def test_removeNeuron(self):
+    genome = self.getConstructedGenome()
+    before = len(genome.patterns[0].hidden)
+    genome.removeNeuron()
+    after = len(genome.patterns[0].hidden)
+    self.assertEqual(before - 1, after)
+  def test_remapGene(self):
+    genome = self.getConstructedGenome()
+    inputBefore = genome.genes[0].inputMap
+    outputsBefore = genome.genes[0].outputMap
+    genome.remapGene()
+    inputAfter = genome.genes[0].inputMap
+    outputsAfter = genome.genes[0].outputMap
+    self.assertFalse(inputBefore is inputAfter)
+    self.assertFalse(outputsBefore is outputsAfter)
+  def test_copyGene(self):
+    genome = self.getConstructedGenome()
+    before = len(genome.genes)
+    genome.copyGene()
+    after = len(genome.genes)
+    self.assertEqual(before+1, after)
+  def test_addPatternToGene(self):
+    genome = self.getConstructedGenome()
+    before = len(genome.genes[0].patterns)
+    genome.addPatternToGene()
+    after = len(genome.genes[0].patterns)
+    self.assertEqual(before+1, after)
+  def test_removePatternFromGene(self):
+    genome = self.getConstructedGenome()
+    before = len(genome.genes[0].patterns)
+    genome.addPatternToGene()
+    genome.removePatternFromGene()
+    after = len(genome.genes[0].patterns)
+    self.assertEqual(before, after)
+  def test_removeUnusedPattern(self):
+    genome = self.getConstructedGenome()
+    before = len(genome.patterns)
+    genome.newPattern()
+    genome.removeUnusedPattern()
+    after = len(genome.patterns)
+    self.assertEqual(before, after)
+  def test_newPattern(self):
+    genome = self.getConstructedGenome()
+    before = len(genome.patterns)
+    genome.newPattern()
+    after = len(genome.patterns)
+    self.assertEqual(before+1, after)
+  def getConstructedGenome(self):
+    genome = Genome.Genome(2,2,0,0)
+    i1 = Genome.PatternNeuron(1.1,1.2)
+    i1.id = "0001"
+    i2 = Genome.PatternNeuron(2.1,2.2)
+    i2.id = "0002"
+    h1 = Genome.PatternNeuron(3.1,3.2)
+    h1.id = "0003"
+    o1 = Genome.PatternNeuron(4.1,4.2)
+    o1.id = "0004"
+    o2 = Genome.PatternNeuron(5.1,5.2)
+    o2.id = "0004"
+    h1.addSynapse(i1, 1.0)
+    h1.addSynapse(i2, 2.0)
+    o1.addSynapse(i1, 3.0)
+    o1.addSynapse(i2, 4.0)
+    o1.addSynapse(h1, 5.0)
+    o2.addSynapse(i1, 3.0)
+    o2.addSynapse(i2, 4.0)
+    o2.addSynapse(h1, 5.0)
+    pattern = Genome.Pattern(0, 0, 0)
+    pattern.outputs = [o1,o2]
+    pattern.inputs = [i1,i2]
+    pattern.hidden = [h1]
+    pattern.neurons = pattern.outputs + pattern.inputs + pattern.hidden
+    genome.patterns = [pattern]
+    gene = Genome.Gene(genome, 2)
+    gene.inputMap = [0,1]
+    gene.outputMap = [0,1]
+    genome.genes = [gene]
+    return genome
+
+
 unittest.main()
