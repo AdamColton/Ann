@@ -7,7 +7,7 @@ def output(outStr):
   file.close()
   
 def view_10_rounds_of_output():
-  genome = Genome.Genome(10,10)
+  genome = Genome.Genome(42,1)
   for i in range(100):
     genome.mutate()
   ann = genome.generate()

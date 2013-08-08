@@ -36,15 +36,15 @@ class Game(object):
       self.turn = "white"
     self.flipBoard()
   def display(self):
-    print " 0 1 2 3 4 5 6 "
+    print(" 0 1 2 3 4 5 6 ")
     for row in self.board:
       s = " "
       for i in row:
         if i == 0: s += "  "
         if i == 1: s += "# "
         if i == -1: s += "@ "
-      print s
-    print " - - - - - - - "
+      print(s)
+    print(" - - - - - - - ")
   def getAllMoves(self):
     moves = []
     for i in range(7):
