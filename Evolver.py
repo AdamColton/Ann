@@ -24,17 +24,18 @@ def Pawn(commands, responses, AIclass, display):
     #report results
     if winner != "draw":
       if winner == 'white':
-        if 'display' == 'end': print( ai1.id, " beat ", ai2.id)
+        if display == 'end': print( ai1.id, " beat ", ai2.id)
         responses.put( (ai1.id, ai2.id) )
       else:
-        if 'display' == 'end': print( ai2.id, " beat ", ai1.id)
+        if display == 'end': print( ai2.id, " beat ", ai1.id)
         responses.put( (ai2.id, ai1.id) )
     else:
-      if 'display' == 'end': print( ai1.id, " drew with ", ai2.id)
+      if display == 'end': print( ai1.id, " drew with ", ai2.id)
 
 class Queen(object):
-  def __init__(self, AI, display = 'none', cores = 4, genomeCount = 1000):
-    self._populateProcesses(cores, AI, display)
+  def __init__(self, AI, display = 'none', pawns = 0, genomeCount = 1000):
+    if pawns == 0: pawns = multiprocessing.cpu_count()
+    self._populateProcesses(pawns, AI, display)
     self._populateGenomes(genomeCount, AI)
     self._sendGenomesToProcesses()
     self._startProcesses()
@@ -48,11 +49,11 @@ class Queen(object):
       if response[1] in self.genomes:
         self.genomes[ response[1] ].score -= 1
         if self.genomes[ response[1] ].score <= 0: self.killGenome(response[1])
-  def _populateProcesses(self, cores, AI, display):
+  def _populateProcesses(self, pawns, AI, display):
     self.responses = multiprocessing.JoinableQueue()
     self.commandQueues = []
     self.processes = []
-    for _ in range(cores):
+    for _ in range(pawns):
       commands = multiprocessing.JoinableQueue()
       p = multiprocessing.Process(target=Pawn, args=(commands, self.responses, AI, display))
       p.daemon = True
