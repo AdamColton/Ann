@@ -1,5 +1,6 @@
 import Genome
 import random
+import os
 
 def output(outStr):
   file = open("output.txt", 'w')
@@ -48,5 +49,11 @@ def load_save_loop():
   genome = Genome.GenomeFactory(outStr)
   outStr += "----\n" + str(genome)
   output( outStr )
-    
-load_save_loop()
+  
+def print_all_gen_filenames():
+  print( [f for f in os.listdir(".") if os.path.isfile(f) and f[-4:] == ".gen"] )
+
+def count_all_gen_files():
+  print( len( [f for f in os.listdir(".") if os.path.isfile(f) and f[-4:] == ".gen"]) )
+  
+count_all_gen_files()

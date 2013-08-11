@@ -2,8 +2,9 @@ import Genome
 from time import sleep
 import multiprocessing
 import random
+import os
 
-def worker(commands, responses, AIclass):
+def Pawn(commands, responses, AIclass):
   genomes = {}
   while True:
     while not commands.empty():
@@ -25,27 +26,47 @@ def worker(commands, responses, AIclass):
       else:
         responses.put( (ai2.id, ai1.id) )
 
-def start(AI, cores = 4, genomeCount = 1000):
-  responses = multiprocessing.JoinableQueue()
-  commandQueues = []
-  processes = []
-  for _ in range(4):
-    commands = multiprocessing.JoinableQueue()
-    commandQueues.append(commands)
-    p = multiprocessing.Process(target=worker, args=(commands, responses, AI))
-    p.daemon = True
-    processes.append(p)
-  #try loading from file
-  genomes = { genome.id : genome for genome in (Genome.Genome(AI.inputs, AI.outputs) for _ in range(genomeCount)) }
-  for genome in (genomes[key] for key in genomes):
-    genome.score = 5
-    genomeString = str(genome)
-    #save to file (try using threads)
-    for commandQueue in commandQueues:
-      commandQueue.put(('g', genomeString))
-  for process in processes:
-    process.start()
-  #montior results
-  while True:
-    response = responses.get()
-    print(response[0], " beat ", response[1])
+class Queen(object):
+  def __init__(self, AI, cores = 4, genomeCount = 1000):
+    self._populateProcesses(cores, AI)
+    self._populateGenomes(genomeCount, AI)
+    self._sendGenomesToProcesses()
+    self._startProcesses()
+    
+    #montior results
+    while True:
+      response = self.responses.get()
+      print(response[0], " beat ", response[1])
+  def _populateProcesses(self, cores, AI):
+    self.responses = multiprocessing.JoinableQueue()
+    self.commandQueues = []
+    self.processes = []
+    for _ in range(cores):
+      commands = multiprocessing.JoinableQueue()
+      p = multiprocessing.Process(target=Pawn, args=(commands, self.responses, AI))
+      p.daemon = True
+      self.commandQueues.append(commands)
+      self.processes.append(p)
+  def _populateGenomes(self, genomeCount, AI):
+    self.genomes = {}
+    genomeFilenames = [f for f in os.listdir(".") if os.path.isfile(f) and f[-4:] == ".gen"][:genomeCount]
+    for filename in genomeFilenames:
+      file = open(filename, 'r')
+      genome = Genome.GenomeFactory( file.read() )
+      file.close()
+      self.genomes[genome.id] = genome
+    while len(self.genomes) < genomeCount:
+      genome = Genome.Genome(AI.inputs, AI.outputs)
+      file = open(genome.id+".gen", 'w')
+      file.write(str(genome))
+      file.close()
+      self.genomes[genome.id] = genome
+  def _sendGenomesToProcesses(self):
+    for genome in (self.genomes[key] for key in self.genomes):
+      genome.score = 5
+      genomeString = str(genome)
+      for commandQueue in self.commandQueues:
+        commandQueue.put(('g', genomeString))
+  def _startProcesses(self):
+    for process in self.processes:
+      process.start()
