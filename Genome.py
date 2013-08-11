@@ -53,10 +53,10 @@ class Genome(object):
           mapping[str(i) +  '_' + neuron.id].addSynapse(synapseNeuron, neuron.synapses[otherNeuron])
   def mutate(self):
     return random.choice([
-      self.perturbSynapseWeights,
       self.newGene,
       self.newPattern,
       self.perturbInitialVals,
+      self.perturbSynapseWeights,
       self.perturbBiases,
       self.addNeuron,
       self.removeNeuron,
@@ -214,6 +214,7 @@ class CopyGenome(Genome):
     self.outputs = parent.outputs
     self.patterns = [CopyPattern(pattern) for pattern in parent.patterns]
     self.genes = [CopyGene(self, gene) for gene in parent.genes]
+    self.id = str( random.randint(1000, 2**30) )
     
 class CopyPattern(Pattern):
   def __init__(self, parent):

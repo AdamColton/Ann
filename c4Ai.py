@@ -1,5 +1,6 @@
 import Ann
 import connectfour
+import random
 
 class C4AI(object):
   inputs = 42
@@ -26,7 +27,7 @@ class C4AI(object):
     neuralNet = self.genome.generate()
     neuralNet.input( inputs )
     neuralNet.calculate(self.iterations)
-    return neuralNet.outputs[0].val
+    return neuralNet.outputs[0].val + random.random()*0.0000000001
   def takeTurn(self, game):
     possibleNextMoves = game.getAllMoves()
     moves = []
