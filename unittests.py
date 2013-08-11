@@ -48,6 +48,18 @@ class TestObjectNet(unittest.TestCase):
     arrayNet.calculate(4)
     ann.calculate(4)
     self.assertEqual(ann.outputs[0].val, arrayNet.neurons[arrayNet.inputs + 0])
+  def test_copy(self):
+    ann = Ann.ObjectNet(2,2)
+    ann.addNeuron()
+    ann.input( [7,2] )
+    ann.hidden[0].addSynapse( ann.inputs[0], 3)
+    ann.hidden[0].addSynapse( ann.inputs[1], 4)
+    ann.outputs[0].addSynapse( ann.hidden[0], 5)
+    ann.outputs[1].addSynapse( ann.hidden[0], 6)
+    annCopy = Ann.CopyObjectNet(ann)
+    annCopy.calculate(2)
+    self.assertEqual( Ann.logistic(5), annCopy.outputs[0].val)
+    self.assertEqual( Ann.logistic(6), annCopy.outputs[1].val)
     
 class TestArrayNet(unittest.TestCase):
   def test_settingInputs(self):

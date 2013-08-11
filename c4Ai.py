@@ -21,10 +21,9 @@ class C4AI(object):
     if displayMode == "end": game.display()
     return game.winner
   def __init__(self, genome):
-    global guid
-    self.genome = genome
+    self.neuralNet = genome.generate()
   def evaluate(self, inputs):
-    neuralNet = self.genome.generate()
+    neuralNet = Ann.CopyObjectNet( self.neuralNet )
     neuralNet.input( inputs )
     neuralNet.calculate(self.iterations)
     return neuralNet.outputs[0].val + random.random()*0.0000000001

@@ -121,3 +121,24 @@ class ArrayNet(object):
     neurons = newNonInputNeuronCount + self.inputs
     for i in range(neuronsToAdd):
       self.synapses.append( [0 for j in range(neurons)] )
+      
+class CopyObjectNet(ObjectNet):
+  def __init__(self, parent):
+    self.inputs = [CopyNeuron(neuron) for neuron in parent.inputs]
+    self.outputs = [CopyNeuron(neuron) for neuron in parent.outputs]
+    self.hidden = [CopyNeuron(neuron) for neuron in parent.hidden]
+    lookup = {}
+    for key, val in zip(parent.inputs + parent.outputs + parent.hidden, self.inputs + self.outputs + self.hidden):
+      lookup[key] = val
+    for parentNeuron in lookup:
+      myNeuron = lookup[parentNeuron]
+      for synapse in parentNeuron.synapses:
+        myNeuron.addSynapse(lookup[synapse[0]], synapse[1])
+    
+class CopyNeuron(Neuron):
+  def __init__(self, parent):
+    self.synapses = []
+    self.val = parent.val
+    self.activation = parent.activation
+    self.bias = parent.bias
+    self.inputNeuron = parent.inputNeuron
