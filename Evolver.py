@@ -4,7 +4,7 @@ import multiprocessing
 import random
 import os
 
-def Pawn(commands, responses, AIclass):
+def Pawn(commands, responses, AIclass, display):
   genomes = {}
   while True:
     while not commands.empty():
@@ -20,21 +20,21 @@ def Pawn(commands, responses, AIclass):
     ai2 = genomes[ random.choice(keys) ]
     
     #run competition
-    winner = AIclass.compete(AIclass(ai1), AIclass(ai2), 'end')
+    winner = AIclass.compete(AIclass(ai1), AIclass(ai2), display)
     #report results
     if winner != "draw":
       if winner == 'white':
-        print( ai1.id, " beat ", ai2.id)
+        if 'display' == 'end': print( ai1.id, " beat ", ai2.id)
         responses.put( (ai1.id, ai2.id) )
       else:
-        print( ai2.id, " beat ", ai1.id)
+        if 'display' == 'end': print( ai2.id, " beat ", ai1.id)
         responses.put( (ai2.id, ai1.id) )
     else:
-      print( ai1.id, " drew with ", ai2.id)
+      if 'display' == 'end': print( ai1.id, " drew with ", ai2.id)
 
 class Queen(object):
-  def __init__(self, AI, cores = 4, genomeCount = 1000):
-    self._populateProcesses(cores, AI)
+  def __init__(self, AI, display = 'none', cores = 4, genomeCount = 1000):
+    self._populateProcesses(cores, AI, display)
     self._populateGenomes(genomeCount, AI)
     self._sendGenomesToProcesses()
     self._startProcesses()
@@ -48,13 +48,13 @@ class Queen(object):
       if response[1] in self.genomes:
         self.genomes[ response[1] ].score -= 1
         if self.genomes[ response[1] ].score <= 0: self.killGenome(response[1])
-  def _populateProcesses(self, cores, AI):
+  def _populateProcesses(self, cores, AI, display):
     self.responses = multiprocessing.JoinableQueue()
     self.commandQueues = []
     self.processes = []
     for _ in range(cores):
       commands = multiprocessing.JoinableQueue()
-      p = multiprocessing.Process(target=Pawn, args=(commands, self.responses, AI))
+      p = multiprocessing.Process(target=Pawn, args=(commands, self.responses, AI, display))
       p.daemon = True
       self.commandQueues.append(commands)
       self.processes.append(p)
