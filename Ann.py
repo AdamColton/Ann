@@ -2,7 +2,7 @@ e = 2.71828182845904523536
 logistic = lambda x: 1 / (1 + e**(-x))
 
 
-class ObjectNet:
+class ObjectNet(object):
   def __init__(self, inputs, outputs):
     self.inputs = [Neuron(0,0,True) for i in range(inputs)]
     self.outputs = [Neuron() for i in range(outputs)]
@@ -66,7 +66,7 @@ class ObjectNet:
     return arrayNet
         
     
-class Neuron:
+class Neuron(object):
   def __init__(self, val = 0, bias = 0, inputNeuron = False):
     self.synapses = []
     self.val = val
@@ -86,7 +86,7 @@ class Neuron:
     self.val = logistic(self._val)
     self.activation = round(self.val)
     
-class ArrayNet:
+class ArrayNet(object):
   def __init__(self, inputs, outputs, hidden = 0):
     neurons = inputs + outputs + hidden
     self.inputs = inputs

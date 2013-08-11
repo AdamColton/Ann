@@ -7,12 +7,13 @@ Think of fingers and toes. Toes are different than fingers and they all have dif
 could all be expressed with the same gene. They just need a finger/toe switch and a size parameter.
 """
 
-class Genome:
+class Genome(object):
   def __init__(self, inputs, outputs, patterns = 10, genes = 10):
     self.inputs = inputs
     self.outputs = outputs
     self.patterns = [Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5)) for i in range(patterns)]
     self.genes = [Gene(self) for i in range(genes)]
+    self.id = str( random.randint(1000, 2**30) )
   def generate(self):
     ann = Ann.ObjectNet(self.inputs, self.outputs)
     for gene in self.genes:
@@ -113,12 +114,12 @@ class Genome:
       self.patterns.remove( random.choice(unusedPatterns) )
     return "Removed an unused pattern"
   def __str__(self):
-    retStr = ":".join(["g", str(self.inputs), str(self.outputs)]) + "\n"
+    retStr = ":".join(["g", self.id, str(self.inputs), str(self.outputs)]) + "\n"
     retStr += "".join([str(pattern) for pattern in self.patterns])
     retStr += "".join([str(gene) for gene in self.genes])
     return retStr
   
-class Gene:    
+class Gene(object):    
     def __init__(self, genome, numberOfPatterns = None):
       if numberOfPatterns == None: numberOfPatterns = random.randint(1,5)
       self.genome = genome
@@ -145,7 +146,7 @@ class Gene:
       self.patterns.pop(position)
       if position == 0 or position == len(self.patterns): self.remap()
         
-class Pattern:
+class Pattern(object):
   def __init__(self, inputs, outputs, hidden):
     self.inputs = [PatternNeuron() for i in range(inputs)]
     self.outputs = [PatternNeuron() for i in range(outputs)]
@@ -194,7 +195,7 @@ class Pattern:
     retStr += "".join([str(neuron) for neuron in self.neurons])
     return retStr
       
-class PatternNeuron:
+class PatternNeuron(object):
   def __init__(self, val = 0.0, bias = 0.0):
     self.synapses = {}
     self.val = val
@@ -238,6 +239,7 @@ class CopyGene(Gene):
     self.inputMap = [i for i in parent.inputMap]
     self.outputMap = [i for i in parent.outputMap]
     self.genome = genome
+    self.id = str( random.randint(1000, 2**30) )
     
 class GenomeFactory(Genome):
   def __init__(self, genomeString):
@@ -275,8 +277,9 @@ class GenomeFactory(Genome):
   def _saveSynapseData(self, data):
     self._patternSynapseMap[self._cursor['pattern']].append((self._cursor['neuron'], data[0], float(data[1])))
   def _setIO(self, data):
-    self.inputs = int(data[0])
-    self.outputs = int(data[1])
+    self.id = data[0]
+    self.inputs = int(data[1])
+    self.outputs = int(data[2])
   def _addGene(self, data):
     self._cursor['gene'] = GeneFactory(data, self)
     self.genes.append( self._cursor['gene'] )
