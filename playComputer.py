@@ -22,12 +22,13 @@ def makeAiMove(ai, game):
 
 print("Who goes first?")
 firstPlayer = int( input("0-AI, 1-Person: ") )
+aiName = input("AI id: ") + ".gen"
+print(aiName)
+file = open(aiName, 'r')
+genome = Genome.GenomeFactory(file.read())
+file.close()
+ai = c4Ai.C4AI( genome )
 game = connectfour.Game()
-genome = Genome.Genome(c4Ai.inputs, c4Ai.outputs)
-genome.perturbSynapseWeights(1,1)
-genome.perturbInitialVals(1,1)
-genome.perturbBiases(1,1)
-ai = c4Ai.AI( genome )
 
 if firstPlayer == 0:
   current = "ai"
