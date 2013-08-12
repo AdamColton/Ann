@@ -190,6 +190,7 @@ $RECYCLE.BIN/
 output.txt
 *.gen
 *.py[co]
+config.py
 __pycache__/
 
 # Packages
