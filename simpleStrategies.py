@@ -2,12 +2,18 @@
 import connectfour
 import c4Ai
 import Genome
+import random
+import os
   
-nnName = input("Neural Net Name: ")
+nnName = input("Neural Net Name (0 for random): ")
+if nnName == "0":
+  nnName = random.choice( [f for f in os.listdir(".") if os.path.isfile(f) and f[-4:] == ".gen"] )
+else:
+  nnName += ".gen"
 print("Who goes first?")
 firstPlayer = input("0-AI, 1-Person: ")
 
-file = open(nnName+".gen")
+file = open(nnName)
 genome = Genome.GenomeFactory(file.read())
 file.close()
 ai = c4Ai.C4AI(genome)
