@@ -46,7 +46,7 @@ if __name__ == '__main__':
   file.close()
   
   processes = multiprocessing.cpu_count()
-  iterationsPerProcess = int(config.monekyTestIterations / processes)
+  iterationsPerProcess = int(config.monkeyTestIterations / processes)
   for _ in range(processes):
     multiprocessing.Process(target=gameLoop, args=(genomeString, responses, iterationsPerProcess), daemon=True).start()
 
