@@ -14,7 +14,7 @@ def makeMonkeyMove(game):
   move = random.choice(possibleNextMoves)
   game.makeMove(move)
   
-def gameLoop(genomeString, responses, iterations):
+def gameLoop(genomeString, responses, iterations, display):
   playerToIntMap = ['white', 'black', 'draw']
   for _ in range(iterations):
     ai = c4Ai.C4AI( Genome.GenomeFactory(genomeString) )
@@ -30,6 +30,7 @@ def gameLoop(genomeString, responses, iterations):
       else:
         makeMonkeyMove(game)
         current = "ai"
+    if display == 'end': game.display()
     responses.put(playerMap[ playerToIntMap.index(game.winner) ])
 
 if __name__ == '__main__':
@@ -48,7 +49,7 @@ if __name__ == '__main__':
   processes = multiprocessing.cpu_count()
   iterationsPerProcess = int(config.monkeyTestIterations / processes)
   for _ in range(processes):
-    multiprocessing.Process(target=gameLoop, args=(genomeString, responses, iterationsPerProcess), daemon=True).start()
+    multiprocessing.Process(target=gameLoop, args=(genomeString, responses, iterationsPerProcess, config.monkeyDisplay), daemon=True).start()
 
   wins = {
     'ai': 0,
