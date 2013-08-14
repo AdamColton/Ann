@@ -59,6 +59,6 @@ if __name__ == '__main__':
   
   for i in range(iterationsPerProcess * processes):
     wins[responses.get()] += 1
-    print('.', end="", flush=True)
+    if config.monkeyDisplay == 'dot' : print('.', end="", flush=True)
   print('\n',wins)
   input()
