@@ -3,21 +3,6 @@ import connectfour
 import c4Ai
 import sys
 import Genome
-
-def makeAiMove(ai, game):
-  possibleNextMoves = game.getAllMoves()
-  moves = []
-  for i, board in zip( range(len(possibleNextMoves)), possibleNextMoves):
-    if board:
-      flattenBoard = []
-      for row in board:
-        flattenBoard.extend(row)
-      ai.inputFromList(flattenBoard)
-      ai.compute()
-      moves.append( (ai.getOutput(0), i) )
-  moves.sort()
-  move = moves[-1][1]
-  game.makeMove(move)
   
 
 print("Who goes first?")

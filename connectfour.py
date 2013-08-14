@@ -50,6 +50,11 @@ class Game(object):
     for i in range(7):
       moves.append(self.getMove(i))
     return moves
+  def getAllMoveIds(self):
+    moves = []
+    for i in range(7):
+      if self.board[0][i] == 0 : moves.append(i)
+    return moves
   def checkForWin(self, x):
     # get y coordinate
     for y in range(6):
