@@ -191,6 +191,7 @@ output.txt
 *.gen
 *.py[co]
 config.py
+benchmark.txt
 __pycache__/
 
 # Packages
