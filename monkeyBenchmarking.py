@@ -27,6 +27,7 @@ if __name__ == '__main__':
     }
     for i in range(config.monkeyBenchmarkResolution):
       wins[responses.get()] += 1
+      if config.monkeyDisplay == 'dot': print('.', end='', flush=True)
     file = open("benchmark.txt", 'a')
     file.write(str(wins['ai']) + " / " + str(wins['monkey']) + '\n')
     file.close()
