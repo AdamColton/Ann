@@ -19,6 +19,7 @@ def Pawn(commands, responses, AIclass, display):
     keys = [key for key in genomes.keys() ]
     ai1 = genomes[ random.choice(keys) ]
     keys.remove(ai1.id)
+    if len(keys) < 1: continue
     ai2 = genomes[ random.choice(keys) ]
     
     #run competition
