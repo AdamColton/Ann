@@ -13,16 +13,19 @@ class C4MCAI(object):
     game = connectfour.Game()
     currentAi = ai1
     while not game.gameOver:
+      print(game.moveCount)
       currentAi.takeTurn(game)
       if currentAi == ai1:
         currentAi = ai2
       else:
         currentAi = ai1
     if display == DisplayOptions.verbose: game.display()
-    if display >= DisplayOptions.brief: print(ai1.genome.id, ' vs ', ai2.genome.id, ' winner ', game.winner)
+    print("game over")
+    if display >= DisplayOptions.brief: print(ai1.id, ' vs ', ai2.id, ' winner ', game.winner)
     return game.winner
   def __init__(self, genome):
     self.neuralNet = genome.generate()
+    self.id = genome.id
   def evaluate(self, inputs):
     neuralNet = Ann.CopyObjectNet( self.neuralNet )
     neuralNet.input( inputs )
@@ -43,7 +46,7 @@ class C4MCAI(object):
       while len(possibleFirstMoves) > config.movePool:
         possibleFirstMoves.remove(random.choice(possibleFirstMoves))
       bestScore = 0
-      bestMove = None
+      bestMove = possibleFirstMoves[0]
       for move in possibleFirstMoves:
         score = move['score']*1.0 / move['attempts']
         score *= self.evaluate([i for row in move['board'] for i in row])
@@ -85,5 +88,4 @@ class C4MCAI(object):
           bestMove = move
           bestScore = score
       game.makeMove(move['move'])
-      print(game.moveCount)
     return game.winner

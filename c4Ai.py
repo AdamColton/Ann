@@ -19,10 +19,11 @@ class C4AI(object):
       else:
         currentAi = ai1
     if display == DisplayOptions.verbose: game.display()
-    if display >= DisplayOptions.brief: print(ai1.genome.id, ' vs ', ai2.genome.id, ' winner ', game.winner)
+    if display >= DisplayOptions.brief: print(ai1.id, ' vs ', ai2.id, ' winner ', game.winner)
     return game.winner
   def __init__(self, genome):
     self.neuralNet = genome.generate()
+    self.id = genome.id
   def evaluate(self, inputs):
     neuralNet = Ann.CopyObjectNet( self.neuralNet )
     neuralNet.input( inputs )
