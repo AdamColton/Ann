@@ -35,3 +35,10 @@ class C4wrapper:
   
 class C4AI:
   iterations = 50
+  
+class C4MCAI:
+  simulations = 1000
+  neuralNetIterations = 20
+  movePool = 2
+  startingWins = 3
+  startingLosses = 1
