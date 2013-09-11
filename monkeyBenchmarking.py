@@ -14,7 +14,7 @@ if __name__ == '__main__':
   processes = multiprocessing.cpu_count()
   responses = multiprocessing.JoinableQueue()
   for _ in range(processes):
-    multiprocessing.Process(target=monkeyAI.benchmarkLoop, args=(responses,), daemon=True).start()
+    multiprocessing.Process(target=monkeyAI.benchmarkLoop, args=(responses, config.display), daemon=True).start()
 
   file = open("benchmark.txt", 'w')
   file.write('')

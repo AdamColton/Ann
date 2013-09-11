@@ -4,6 +4,8 @@ import os
 import config
 import multiprocessing
 import monkeyAI
+from config import Monkey as config
+from config import DisplayOptions
 
 if __name__ == '__main__':
   genomeName = input("Neural Net Name (0 for random): ")
@@ -19,9 +21,9 @@ if __name__ == '__main__':
   file.close()
   
   processes = multiprocessing.cpu_count()
-  iterationsPerProcess = int(config.Monkey.benchmarkResolution / processes)
+  iterationsPerProcess = int(config.benchmarkResolution / processes)
   for _ in range(processes):
-    multiprocessing.Process(target=monkeyAI.gameLoop, args=(genomeString, responses, iterationsPerProcess, config.Monkey.display), daemon=True).start()
+    multiprocessing.Process(target=monkeyAI.gameLoop, args=(genomeString, responses, iterationsPerProcess, config.display), daemon=True).start()
 
   wins = {
     'ai': 0,
@@ -31,6 +33,6 @@ if __name__ == '__main__':
   
   for i in range(iterationsPerProcess * processes):
     wins[responses.get()] += 1
-    if config.monkeyDisplay == config.DisplayOptions.dot : print('.', end="", flush=True)
+    if config.display == DisplayOptions.dot : print('.', end="", flush=True)
   print('\n',wins)
   input()

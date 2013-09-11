@@ -15,7 +15,7 @@ class Genome(object):
   def __init__(self, inputs, outputs, patterns = config.defaultPatterns, genes = config.defaultGenes):
     self.inputs = inputs
     self.outputs = outputs
-    self.patterns = [Pattern(random.randint(*config.patternInputInilizeRange),random.randint(*config.patternOutInilizeRange),random.randint(*config.patternHiddenInilizeRange)) for i in range(patterns)]
+    self.patterns = [Pattern(random.randint(*config.patternInputInilizeRange),random.randint(*config.patternOutputInilizeRange),random.randint(*config.patternHiddenInilizeRange)) for i in range(patterns)]
     self.genes = [Gene(self) for i in range(genes)]
     self.id = getId()
   def generate(self):

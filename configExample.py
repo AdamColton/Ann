@@ -25,6 +25,7 @@ class Genome:
   geneDefaultNumberOfPatternsRange = (1,5)
   
 class Evolver:
+  display = DisplayOptions.brief
   defaultGenomeCount = 1000
   genomeInitialScore = 5
   

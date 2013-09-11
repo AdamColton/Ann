@@ -4,6 +4,7 @@ import multiprocessing
 import random
 import os
 from config import Evolver as config
+from config import DisplayOptions
 
 def Pawn(commands, responses, AIclass, display):
   genomes = {}
@@ -25,25 +26,27 @@ def Pawn(commands, responses, AIclass, display):
     #report results
     if winner != "draw":
       if winner == 'white':
-        if display == 'end': print( ai1.id, " beat ", ai2.id)
+        if display == DisplayOptions.verbose: print( ai1.id, " beat ", ai2.id)
         responses.put( (ai1.id, ai2.id) )
       else:
-        if display == 'end': print( ai2.id, " beat ", ai1.id)
+        if display == DisplayOptions.verbose: print( ai2.id, " beat ", ai1.id)
         responses.put( (ai2.id, ai1.id) )
     else:
-      if display == 'end': print( ai1.id, " drew with ", ai2.id)
+      if display == DisplayOptions.verbose: print( ai1.id, " drew with ", ai2.id)
 
 class Queen(object):
-  def __init__(self, AI, display = 'none', pawns = 0, genomeCount = config.defaultGenomeCount):
+  def __init__(self, AI, display = config.display, pawns = 0, genomeCount = config.defaultGenomeCount):
     if pawns == 0: pawns = multiprocessing.cpu_count()
     self._populateProcesses(pawns, AI, display)
     self._populateGenomes(genomeCount, AI)
     self._sendGenomesToProcesses()
     self._startProcesses()
+    self.display = display
     
     #montior results
     while True:
       response = self.responses.get()
+      if self.display == DisplayOptions.dot: print('.', end='', flush=True)
       if response[0] in self.genomes:
         self.genomes[ response[0] ].score += 1
         if self.genomes[ response[0] ].score >= 2*config.genomeInitialScore: self.reproduceGenome(response[0])
@@ -89,7 +92,7 @@ class Queen(object):
     for process in self.processes:
       process.start()
   def reproduceGenome(self, id):
-    print(id, " is reproducing")
+    if self.display >= DisplayOptions.brief: print(id, " is reproducing")
     genome = Genome.CopyGenome( self.genomes[id] )
     genome.mutate()
     self.genomes[genome.id] = genome
@@ -101,7 +104,7 @@ class Queen(object):
     self.genomes[id].score -= config.genomeInitialScore
     genome.score = config.genomeInitialScore
   def killGenome(self, id):
-    print(id, " has died")
+    if self.display >= DisplayOptions.brief: print(id, " has died")
     del self.genomes[id]
     os.remove(id+".gen")
     command = ('d', id)

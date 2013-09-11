@@ -3,6 +3,7 @@ import c4Ai
 import Genome
 import connectfour
 import os
+from config import DisplayOptions
 
 def makeMonkeyMove(game):
   possibleNextMoves = game.getAllMoveIds()
@@ -25,10 +26,11 @@ def gameLoop(genomeString, responses, iterations, display):
       else:
         makeMonkeyMove(game)
         current = "ai"
-    if display == 'end': game.display()
+    if display == DisplayOptions.verbose: game.display()
+    if display >= DisplayOptions.brief: print('Winner: ', playerMap[ playerToIntMap.index(game.winner) ])
     responses.put(playerMap[ playerToIntMap.index(game.winner) ])
     
-def benchmarkLoop(responses):
+def benchmarkLoop(responses, display):
   playerToIntMap = ['white', 'black', 'draw']
   while True:
     genomeName = random.choice( [f for f in os.listdir(".") if os.path.isfile(f) and f[-4:] == ".gen"] )
@@ -48,6 +50,8 @@ def benchmarkLoop(responses):
       else:
         makeMonkeyMove(game)
         current = "ai"
+    if display == DisplayOptions.verbose:game.display()
+    if display >= DisplayOptions.brief: print(genomeName[:-4], ' Winner: ', playerMap[ playerToIntMap.index(game.winner) ])
     responses.put(playerMap[ playerToIntMap.index(game.winner) ])
     
  
