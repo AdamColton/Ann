@@ -1,5 +1,6 @@
 import random
 import Ann
+from config import Genome as config
 
 """
 I would like a mechanism where a gene expression passes data into a gene at the time that it is expressed.
@@ -7,13 +8,16 @@ Think of fingers and toes. Toes are different than fingers and they all have dif
 could all be expressed with the same gene. They just need a finger/toe switch and a size parameter.
 """
 
+def getId():
+  return str( random.randint(1000, 2**30) )
+
 class Genome(object):
-  def __init__(self, inputs, outputs, patterns = 10, genes = 10):
+  def __init__(self, inputs, outputs, patterns = config.defaultPatterns, genes = config.defaultGenes):
     self.inputs = inputs
     self.outputs = outputs
-    self.patterns = [Pattern(random.randint(1,5),random.randint(1,5),random.randint(1,5)) for i in range(patterns)]
+    self.patterns = [Pattern(random.randint(*config.patternInputInilizeRange),random.randint(*config.patternOutInilizeRange),random.randint(*config.patternHiddenInilizeRange)) for i in range(patterns)]
     self.genes = [Gene(self) for i in range(genes)]
-    self.id = str( random.randint(1000, 2**30) )
+    self.id = getId()
   def generate(self):
     ann = Ann.ObjectNet(self.inputs, self.outputs)
     for gene in self.genes:
@@ -66,15 +70,15 @@ class Genome(object):
       self.removePatternFromGene,
       self.removeUnusedPattern
     ])()
-  def perturbSynapseWeights(self, maxDisturbance = 0.01, disturbanceProbability = 0.01):
+  def perturbSynapseWeights(self, maxDisturbance = config.perturbSynapseWeightsMaxDisturbance, disturbanceProbability = config.perturbSynapseWeightsdisturbanceProbability):
     for pattern in self.patterns:
       pattern.perturbSynapseWeights(maxDisturbance, disturbanceProbability)
     return "Perturbed Synapse Weights with a maximum disturbance of " + str(maxDisturbance) + " and a probability of " + str(disturbanceProbability)
-  def perturbInitialVals(self, maxDisturbance = 0.01, disturbanceProbability = 0.01):
+  def perturbInitialVals(self, maxDisturbance = config.perturbInitialValsMaxDisturbance, disturbanceProbability = config.perturbInitialValsdisturbanceProbability):
     for pattern in self.patterns:
       pattern.perturbInitialVals(maxDisturbance, disturbanceProbability)
     return "Perturbed Intilial Values with a maximum disturbance of " + str(maxDisturbance) + " and a probability of " + str(disturbanceProbability)
-  def perturbBiases(self, maxDisturbance = 0.01, disturbanceProbability = 0.01):
+  def perturbBiases(self, maxDisturbance = config.perturbBiasesMaxDisturbance, disturbanceProbability = config.perturbBiasesdisturbanceProbability):
     for pattern in self.patterns:
       pattern.perturbBiases(maxDisturbance, disturbanceProbability)
     return "Perturbed Biases with a maximum disturbance of " + str(maxDisturbance) + " and a probability of " + str(disturbanceProbability)
@@ -121,7 +125,7 @@ class Genome(object):
   
 class Gene(object):    
     def __init__(self, genome, numberOfPatterns = None):
-      if numberOfPatterns == None: numberOfPatterns = random.randint(1,5)
+      if numberOfPatterns == None: numberOfPatterns = random.randint(*config.geneDefaultNumberOfPatternsRange)
       self.genome = genome
       self.patterns = [random.choice(genome.patterns) for i in range(numberOfPatterns)]
       self.remap()
@@ -200,7 +204,7 @@ class PatternNeuron(object):
     self.synapses = {}
     self.val = val
     self.bias = bias
-    self.id = str(random.randint(0,2**30))
+    self.id = getId()
   def addSynapse(self, neuron, weight):
     self.synapses[neuron] = weight
   def __str__(self):
@@ -214,7 +218,7 @@ class CopyGenome(Genome):
     self.outputs = parent.outputs
     self.patterns = [CopyPattern(pattern) for pattern in parent.patterns]
     self.genes = [CopyGene(self, gene) for gene in parent.genes]
-    self.id = str( random.randint(1000, 2**30) )
+    self.id = getId()
     
 class CopyPattern(Pattern):
   def __init__(self, parent):
@@ -232,7 +236,7 @@ class CopyPatternNeuron(PatternNeuron):
     self.synapses = {}
     self.val = parent.val
     self.bias = parent.bias
-    self.id = str(random.randint(0,2**30))
+    self.id = getId()
     
 class CopyGene(Gene):
   def __init__(self, genome, parent):
@@ -240,7 +244,7 @@ class CopyGene(Gene):
     self.inputMap = [i for i in parent.inputMap]
     self.outputMap = [i for i in parent.outputMap]
     self.genome = genome
-    self.id = str( random.randint(1000, 2**30) )
+    self.id = getId()
     
 class GenomeFactory(Genome):
   def __init__(self, genomeString):

@@ -1,11 +1,11 @@
 import Ann
 import connectfour
 import random
+from config import C4AI as config
 
 class C4AI(object):
   inputs = 42
   outputs = 1
-  iterations = 50
   
   @staticmethod
   def compete(ai1, ai2, displayMode = "none"):
@@ -25,7 +25,7 @@ class C4AI(object):
   def evaluate(self, inputs):
     neuralNet = Ann.CopyObjectNet( self.neuralNet )
     neuralNet.input( inputs )
-    neuralNet.calculate(self.iterations)
+    neuralNet.calculate(config.iterations)
     return neuralNet.outputs[0].val + random.random()*0.0000000001
   def takeTurn(self, game):
     possibleNextMoves = game.getAllMoves()

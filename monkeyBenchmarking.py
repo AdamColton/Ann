@@ -4,7 +4,8 @@ import c4Ai
 import Genome
 import random
 import os
-import config
+from config import Monkey as config
+from config import DisplayOptions
 import multiprocessing
 import monkeyAI
 
@@ -25,9 +26,9 @@ if __name__ == '__main__':
       'monkey': 0,
       'draw': 0
     }
-    for i in range(config.monkeyBenchmarkResolution):
+    for i in range(config.benchmarkResolution):
       wins[responses.get()] += 1
-      if config.monkeyDisplay == 'dot': print('.', end='', flush=True)
+      if config.display == DisplayOptions.dot: print('.', end='', flush=True)
     file = open("benchmark.txt", 'a')
     file.write(str(wins['ai']) + " / " + str(wins['monkey']) + '\n')
     file.close()

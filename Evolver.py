@@ -3,6 +3,7 @@ from time import sleep
 import multiprocessing
 import random
 import os
+from config import Evolver as config
 
 def Pawn(commands, responses, AIclass, display):
   genomes = {}
@@ -33,7 +34,7 @@ def Pawn(commands, responses, AIclass, display):
       if display == 'end': print( ai1.id, " drew with ", ai2.id)
 
 class Queen(object):
-  def __init__(self, AI, display = 'none', pawns = 0, genomeCount = 1000):
+  def __init__(self, AI, display = 'none', pawns = 0, genomeCount = config.defaultGenomeCount):
     if pawns == 0: pawns = multiprocessing.cpu_count()
     self._populateProcesses(pawns, AI, display)
     self._populateGenomes(genomeCount, AI)
@@ -45,7 +46,7 @@ class Queen(object):
       response = self.responses.get()
       if response[0] in self.genomes:
         self.genomes[ response[0] ].score += 1
-        if self.genomes[ response[0] ].score >= 10: self.reproduceGenome(response[0])
+        if self.genomes[ response[0] ].score >= 2*config.genomeInitialScore: self.reproduceGenome(response[0])
       if response[1] in self.genomes:
         self.genomes[ response[1] ].score -= 1
         if self.genomes[ response[1] ].score <= 0: self.killGenome(response[1])
@@ -78,7 +79,7 @@ class Queen(object):
       self.genomes[genome.id] = genome
   def _sendGenomesToProcesses(self):
     for genome in (self.genomes[key] for key in self.genomes):
-      genome.score = 5
+      genome.score = config.genomeInitialScore
       command = ('g', str(genome))
       self._sendCommandToAllProcesses( command )
   def _sendCommandToAllProcesses(self, command):
@@ -97,8 +98,8 @@ class Queen(object):
     file = open(genome.id+".gen", 'w')
     file.write(str(genome))
     file.close()
-    self.genomes[id].score -= 5
-    genome.score = 5
+    self.genomes[id].score -= config.genomeInitialScore
+    genome.score = config.genomeInitialScore
   def killGenome(self, id):
     print(id, " has died")
     del self.genomes[id]

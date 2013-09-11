@@ -19,9 +19,9 @@ if __name__ == '__main__':
   file.close()
   
   processes = multiprocessing.cpu_count()
-  iterationsPerProcess = int(config.monkeyTestIterations / processes)
+  iterationsPerProcess = int(config.Monkey.benchmarkResolution / processes)
   for _ in range(processes):
-    multiprocessing.Process(target=monkeyAI.gameLoop, args=(genomeString, responses, iterationsPerProcess, config.monkeyDisplay), daemon=True).start()
+    multiprocessing.Process(target=monkeyAI.gameLoop, args=(genomeString, responses, iterationsPerProcess, config.Monkey.display), daemon=True).start()
 
   wins = {
     'ai': 0,
@@ -31,6 +31,6 @@ if __name__ == '__main__':
   
   for i in range(iterationsPerProcess * processes):
     wins[responses.get()] += 1
-    if config.monkeyDisplay == 'dot' : print('.', end="", flush=True)
+    if config.monkeyDisplay == config.DisplayOptions.dot : print('.', end="", flush=True)
   print('\n',wins)
   input()
