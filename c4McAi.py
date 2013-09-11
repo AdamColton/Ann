@@ -29,24 +29,61 @@ class C4MCAI(object):
     neuralNet.calculate(config.neuralNetIterations)
     return neuralNet.outputs[0].val + random.random()*0.0000000001
   def takeTurn(self, game):
-    allPossibleMoves = game.getAllMoves()
     possibleNextMoves = []
-    while possibleNextMoves < config.movePool and len(allPossibleMoves) > 0:
-      move = random.choice(allPossibleMoves)
-      allPossibleMoves.remove(move)
-      possibleNextMoves.append({
-        "move": move,
-        "wins": config.startingWins,
-        "losses": config.startingLosses
-      })
+    allPossibleMoves = game.getAllMoves()
+    for move, board in zip( range(len(allPossibleMoves)), allPossibleMoves):
+      if board: possibleNextMoves.append({
+        'board': board,
+        'move': move,
+        'score': config.startingScore,
+        'attempts': config.startingAttempts})
     
-    moves = []
-    for i, board in zip( range(len(possibleNextMoves)), possibleNextMoves):
-      if board:
-        flattenBoard = []
-        for row in board:
-          flattenBoard.extend(row)
-        moves.append( (self.evaluate(flattenBoard), i) )
+    for _ in range(config.simulations):
+      possibleFirstMoves = [move for move in possibleNextMoves]
+      while len(possibleFirstMoves) > config.movePool:
+        possibleFirstMoves.remove(random.choice(possibleFirstMoves))
+      bestScore = 0
+      bestMove = None
+      for move in possibleFirstMoves:
+        score = move['score']*1.0 / move['attempts']
+        score *= self.evaluate([i for row in move['board'] for i in row])
+        if score > bestScore:
+          bestScore = score
+          bestMove = move
+      
+      monteCarloBoard = game.copy()
+      monteCarloBoard.makeMove(bestMove['move'])
+      bestMove['attempts'] += 1
+      monteCarloWinner =  self.monteCarlo(monteCarloBoard)
+      if monteCarloWinner == game.turn:
+        bestMove['score'] += 1
+      elif monteCarloWinner != "draw":
+        bestMove['score'] -= 1
+      
+    moves = [((move['score']*1.0) / (move['attempts']), move['move']) for move in possibleNextMoves]
     moves.sort()
     move = moves[-1][1]
     game.makeMove(move)
+  def monteCarlo(self, game):
+    while not game.gameOver:
+      moves = []
+      i=0
+      for board in game.getAllMoves():
+        if board:
+          moves.append({
+            'board': board,
+            'move': i
+          })
+        i += 1
+      while len(moves) > config.movePool:
+        moves.remove(random.choice(moves))
+      bestScore = 0
+      bestMove = None
+      for move in moves:
+        score = self.evaluate([i for row in move['board'] for i in row])
+        if score > bestScore:
+          bestMove = move
+          bestScore = score
+      game.makeMove(move['move'])
+      print(game.moveCount)
+    return game.winner

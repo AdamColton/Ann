@@ -77,3 +77,10 @@ class Game(object):
         else:
           count = 0
     return False
+  def copy(self):
+    doppleganger = Game(self.board)
+    doppleganger.turn = self.turn
+    doppleganger.gameOver = self.gameOver
+    doppleganger.winner = self.winner
+    doppleganger.moveCount = self.moveCount
+    return doppleganger

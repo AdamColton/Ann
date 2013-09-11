@@ -36,15 +36,20 @@ def Pawn(commands, responses, AIclass, display):
       if display == DisplayOptions.verbose: print( ai1.id, " drew with ", ai2.id)
 
 class Queen(object):
-  def __init__(self, AI, display = config.display, pawns = 0, genomeCount = config.defaultGenomeCount):
+  def __init__(self, AI, display, pawns = 0, genomeCount = config.defaultGenomeCount):
     if pawns == 0: pawns = multiprocessing.cpu_count()
+    if display == DisplayOptions.verbose: print("Populating Processes.....", end='',flush=True)
     self._populateProcesses(pawns, AI, display)
+    if display == DisplayOptions.verbose: print("Done\nPopulating Genomes.......", end='',flush=True)
     self._populateGenomes(genomeCount, AI)
+    if display == DisplayOptions.verbose: print("Done\nBroadcasting Genomes.....", end='',flush=True)
     self._sendGenomesToProcesses()
+    if display == DisplayOptions.verbose: print("Done\nStarting Processes.......", end='',flush=True)
     self._startProcesses()
+    if display == DisplayOptions.verbose: print("Done")
     self.display = display
     
-    #montior results
+    #monitor results
     while True:
       response = self.responses.get()
       if self.display == DisplayOptions.dot: print('.', end='', flush=True)

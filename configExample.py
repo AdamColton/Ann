@@ -40,5 +40,5 @@ class C4MCAI:
   simulations = 1000
   neuralNetIterations = 20
   movePool = 2
-  startingWins = 3
-  startingLosses = 1
+  startingScore = 3
+  startingAttempts = 1

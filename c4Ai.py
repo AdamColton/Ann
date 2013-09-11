@@ -33,9 +33,7 @@ class C4AI(object):
     moves = []
     for i, board in zip( range(len(possibleNextMoves)), possibleNextMoves):
       if board:
-        flattenBoard = []
-        for row in board:
-          flattenBoard.extend(row)
+        flattenBoard = [i for row in board for i in row]
         moves.append( (self.evaluate(flattenBoard), i) )
     moves.sort()
     move = moves[-1][1]
