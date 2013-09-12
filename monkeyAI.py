@@ -1,9 +1,17 @@
 import random
-import c4Ai
 import Genome
 import connectfour
 import os
+from config import Monkey as config
 from config import DisplayOptions
+from config import AiLibraries
+
+if config.aiLibrary == AiLibraries.c4Ai:
+  import c4Ai
+  aiLibrary = c4Ai.C4AI
+elif config.aiLibrary == AiLibraries.c4McAi:
+  import c4McAi
+  aiLibrary = c4McAi.C4MCAI
 
 def makeMonkeyMove(game):
   possibleNextMoves = game.getAllMoveIds()
@@ -13,7 +21,7 @@ def makeMonkeyMove(game):
 def gameLoop(genomeString, responses, iterations, display):
   playerToIntMap = ['white', 'black', 'draw']
   for _ in range(iterations):
-    ai = c4Ai.C4AI( Genome.GenomeFactory(genomeString) )
+    ai = aiLibrary( Genome.GenomeFactory(genomeString) )
     game = connectfour.Game()
     playerMap = ['ai', 'monkey']
     random.shuffle(playerMap)
@@ -37,7 +45,7 @@ def benchmarkLoop(responses, display):
     file = open(genomeName, 'r')
     genomeString = file.read()
     file.close()
-    ai = c4Ai.C4AI( Genome.GenomeFactory(genomeString) )
+    ai = aiLibrary( Genome.GenomeFactory(genomeString) )
     game = connectfour.Game()
     playerMap = ['ai', 'monkey']
     random.shuffle(playerMap)
@@ -53,5 +61,3 @@ def benchmarkLoop(responses, display):
     if display == DisplayOptions.verbose:game.display()
     if display >= DisplayOptions.brief: print(genomeName[:-4], ' Winner: ', playerMap[ playerToIntMap.index(game.winner) ])
     responses.put(playerMap[ playerToIntMap.index(game.winner) ])
-    
- 

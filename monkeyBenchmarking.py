@@ -1,13 +1,9 @@
 #!/usr/bin/env python
-import connectfour
-import c4Ai
-import Genome
-import random
-import os
 from config import Monkey as config
 from config import DisplayOptions
 import multiprocessing
 import monkeyAI
+  
 
 if __name__ == '__main__':
   processes = config.cores
