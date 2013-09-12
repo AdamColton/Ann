@@ -45,6 +45,7 @@ class C4MCAI(object):
       possibleFirstMoves = [move for move in possibleNextMoves]
       while len(possibleFirstMoves) > config.movePool:
         possibleFirstMoves.remove(random.choice(possibleFirstMoves))
+      random.shuffle(possibleFirstMoves)
       bestScore = 0
       bestMove = possibleFirstMoves[0]
       for move in possibleFirstMoves:
