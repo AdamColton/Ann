@@ -3,7 +3,6 @@ from time import sleep
 import multiprocessing
 import random
 import os
-from config import Evolver as config
 from config import DisplayOptions
 
 def Pawn(commands, responses, AIclass, display):
@@ -36,8 +35,14 @@ def Pawn(commands, responses, AIclass, display):
       if display == DisplayOptions.verbose: print( ai1.id, " drew with ", ai2.id)
 
 class Queen(object):
-  def __init__(self, AI, display, pawns = 0, genomeCount = config.defaultGenomeCount):
-    if pawns == 0: pawns = multiprocessing.cpu_count()
+  def __init__(self, AI, display, pawns, genomeCount, genomeInitialScore):
+    if pawns == 0:
+      pawns = multiprocessing.cpu_count()
+    elif pawns < 0:
+      pawns += multiprocessing.cpu_count()
+      if pawns < 0 : pawns = 1
+    self.genomeInitialScore = genomeInitialScore
+    
     if display == DisplayOptions.verbose: print("Populating Processes.....", end='',flush=True)
     self._populateProcesses(pawns, AI, display)
     if display == DisplayOptions.verbose: print("Done\nPopulating Genomes.......", end='',flush=True)
@@ -55,7 +60,7 @@ class Queen(object):
       if self.display == DisplayOptions.dot: print('.', end='', flush=True)
       if response[0] in self.genomes:
         self.genomes[ response[0] ].score += 1
-        if self.genomes[ response[0] ].score >= 2*config.genomeInitialScore: self.reproduceGenome(response[0])
+        if self.genomes[ response[0] ].score >= 2*self.genomeInitialScore: self.reproduceGenome(response[0])
       if response[1] in self.genomes:
         self.genomes[ response[1] ].score -= 1
         if self.genomes[ response[1] ].score <= 0: self.killGenome(response[1])
@@ -88,7 +93,7 @@ class Queen(object):
       self.genomes[genome.id] = genome
   def _sendGenomesToProcesses(self):
     for genome in (self.genomes[key] for key in self.genomes):
-      genome.score = config.genomeInitialScore
+      genome.score = self.genomeInitialScore
       command = ('g', str(genome))
       self._sendCommandToAllProcesses( command )
   def _sendCommandToAllProcesses(self, command):
@@ -107,8 +112,8 @@ class Queen(object):
     file = open(genome.id+".gen", 'w')
     file.write(str(genome))
     file.close()
-    self.genomes[id].score -= config.genomeInitialScore
-    genome.score = config.genomeInitialScore
+    self.genomes[id].score -= self.genomeInitialScore
+    genome.score = self.genomeInitialScore
   def killGenome(self, id):
     if self.display >= DisplayOptions.brief: print(id, " has died")
     del self.genomes[id]

@@ -28,14 +28,11 @@ class Genome:
   perturbBiasesdisturbanceProbability = 0.01
   geneDefaultNumberOfPatternsRange = (1,5)
   
-class Evolver:
-  display = DisplayOptions.brief
-  defaultGenomeCount = 1000
-  genomeInitialScore = 5
-  
 class C4wrapper:
+  genomeInitialScore = 5
   display = DisplayOptions.none
   genomes = 1000
+  cores = -1
   
 class C4AI:
   iterations = 50
