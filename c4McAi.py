@@ -13,14 +13,13 @@ class C4MCAI(object):
     game = connectfour.Game()
     currentAi = ai1
     while not game.gameOver:
-      print(game.moveCount)
+      if display == DisplayOptions.verbose: print(game.moveCount)
       currentAi.takeTurn(game)
       if currentAi == ai1:
         currentAi = ai2
       else:
         currentAi = ai1
     if display == DisplayOptions.verbose: game.display()
-    print("game over")
     if display >= DisplayOptions.brief: print(ai1.id, ' vs ', ai2.id, ' winner ', game.winner)
     return game.winner
   def __init__(self, genome):
@@ -69,6 +68,7 @@ class C4MCAI(object):
     move = moves[-1][1]
     game.makeMove(move)
   def monteCarlo(self, game):
+    iteration = 0
     while not game.gameOver:
       moves = []
       i=0
@@ -84,9 +84,12 @@ class C4MCAI(object):
       bestScore = 0
       bestMove = None
       for move in moves:
-        score = self.evaluate([i for row in move['board'] for i in row])
+        if iteration < config.nnMcDepth:
+          score = self.evaluate([i for row in move['board'] for i in row])
+        else:
+          score = random.random()
         if score > bestScore:
           bestMove = move
           bestScore = score
-      game.makeMove(move['move'])
+      game.makeMove(bestMove['move'])
     return game.winner

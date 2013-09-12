@@ -43,3 +43,4 @@ class C4MCAI:
   movePool = 2
   startingScore = 3
   startingAttempts = 1
+  nnMcDepth = 7
