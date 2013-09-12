@@ -5,10 +5,12 @@ class Enum:
     return self._enum.index(name)
 
 DisplayOptions = Enum('none','dot','brief','verbose')
+AiLibraries = Enum('c4Ai','c4McAi')
 
 class Monkey:
   display = DisplayOptions.none
   benchmarkResolution = 300
+  aiLibrary = AiLibraries.c4McAi
   cores = 0
   # cores = 0 will use all available cores
   # cores = 2 will run 2 processes (even if only 1 core is available)
