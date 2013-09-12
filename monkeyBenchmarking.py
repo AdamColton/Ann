@@ -10,8 +10,12 @@ import multiprocessing
 import monkeyAI
 
 if __name__ == '__main__':
-  
-  processes = multiprocessing.cpu_count()
+  processes = config.cores
+  if processes==0:
+    processes = multiprocessing.cpu_count()
+  elif processes < 0:
+    processes += multiprocessing.cpu_count()
+    if processes < 0: processes = 1
   responses = multiprocessing.JoinableQueue()
   for _ in range(processes):
     multiprocessing.Process(target=monkeyAI.benchmarkLoop, args=(responses, config.display), daemon=True).start()

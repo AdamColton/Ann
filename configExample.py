@@ -9,6 +9,10 @@ DisplayOptions = Enum('none','dot','brief','verbose')
 class Monkey:
   display = DisplayOptions.none
   benchmarkResolution = 300
+  cores = 0
+  # cores = 0 will use all available cores
+  # cores = 2 will run 2 processes (even if only 1 core is available)
+  # cores = -3 will use all but one three cores (so 5 cores on an 8 core machine), but will always use at lease one core.
   
 class Genome:
   patternInputInilizeRange = (1,5)

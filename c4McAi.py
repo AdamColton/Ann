@@ -13,6 +13,7 @@ class C4MCAI(object):
     game = connectfour.Game()
     currentAi = ai1
     while not game.gameOver:
+      print(game.moveCount)
       currentAi.takeTurn(game)
       if currentAi == ai1:
         currentAi = ai2
@@ -42,8 +43,9 @@ class C4MCAI(object):
       possibleFirstMoves = [move for move in possibleNextMoves]
       while len(possibleFirstMoves) > config.movePool:
         possibleFirstMoves.remove(random.choice(possibleFirstMoves))
+      random.shuffle(possibleFirstMoves)
       bestScore = 0
-      bestMove = None
+      bestMove = possibleFirstMoves[0]
       for move in possibleFirstMoves:
         score = move['score']*1.0 / move['attempts']
         score *= self.evaluate([i for row in move['board'] for i in row])
@@ -85,5 +87,4 @@ class C4MCAI(object):
           bestMove = move
           bestScore = score
       game.makeMove(move['move'])
-      print(game.moveCount)
     return game.winner
