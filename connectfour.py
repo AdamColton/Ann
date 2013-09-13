@@ -22,7 +22,10 @@ class Game(object):
     return None
   def makeMove(self,i):
     tryMove = self.getMove(i)
-    if tryMove: self.board = tryMove
+    if tryMove:
+      self.board = tryMove
+    else:
+      return False
     if (not self.gameOver) and self.checkForWin(i):
       self.gameOver = True
       self.winner = self.turn
@@ -35,6 +38,7 @@ class Game(object):
     else:
       self.turn = "white"
     self.flipBoard()
+    return True
   def display(self):
     print(" 0 1 2 3 4 5 6 ")
     for row in self.board:
