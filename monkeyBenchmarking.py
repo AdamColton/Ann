@@ -3,6 +3,10 @@ from config import Monkey as config
 from config import DisplayOptions
 import multiprocessing
 import monkeyAI
+import Graph
+import datetime
+
+#Requires Pillow
   
 
 if __name__ == '__main__':
@@ -16,10 +20,12 @@ if __name__ == '__main__':
   for _ in range(processes):
     multiprocessing.Process(target=monkeyAI.benchmarkLoop, args=(responses, config.display), daemon=True).start()
 
-  file = open("benchmark.txt", 'w')
+  filename = datetime.datetime.now().strftime("benchmark.%y%m%d%H%M.txt")
+  file = open(filename, 'w')
   file.write('')
   file.close()
   
+  data = []
   while True:
     wins = {
       'ai': 0,
@@ -27,8 +33,11 @@ if __name__ == '__main__':
       'draw': 0
     }
     for i in range(config.benchmarkResolution):
+      print(i)
       wins[responses.get()] += 1
       if config.display == DisplayOptions.dot: print('.', end='', flush=True)
-    file = open("benchmark.txt", 'a')
+    data.append(wins['ai']*1.0/config.benchmarkResolution)
+    if len(data) > 2 : Graph.new(data).line_graph(datetime.datetime.now().strftime("%y%m%d%H%M"))
+    file = open(filename, 'a')
     file.write(str(wins['ai']) + " / " + str(wins['monkey']) + '\n')
     file.close()
