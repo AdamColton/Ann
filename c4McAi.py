@@ -13,7 +13,6 @@ class C4MCAI(object):
     game = connectfour.Game()
     currentAi = ai1
     while not game.gameOver:
-      if display == DisplayOptions.verbose: print(game.moveCount)
       currentAi.takeTurn(game)
       if currentAi == ai1:
         currentAi = ai2

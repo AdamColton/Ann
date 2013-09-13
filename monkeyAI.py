@@ -77,7 +77,7 @@ def benchmarkLoop(responses, display):
         ai.takeTurn(game)
         current = "monkey"
       else:
-        makeMonkeyMove(game)
+        makeMcMonkeyMove(game)
         current = "ai"
     if display == DisplayOptions.verbose:game.display()
     if display >= DisplayOptions.brief: print(genomeName[:-4], ' Winner: ', playerMap[ playerToIntMap.index(game.winner) ])
