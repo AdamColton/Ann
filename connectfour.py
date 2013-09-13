@@ -56,6 +56,7 @@ class Game(object):
       if self.board[0][i] == 0 : moves.append(i)
     return moves
   def checkForWin(self, x):
+    if self.moveCount < 6 : return False
     # get y coordinate
     for y in range(6):
       if self.board[y][x] == 1:
@@ -63,10 +64,11 @@ class Game(object):
     # Build a list of horizontal, vertical and 2 diagonal lines
     linesToTry = [
       [ (x, i) for i in range(6) ],
-      [ (i,y) for i in range(x-4, x+4) if i >=0 and i <=6 ],
-      [ (x+i, y+i) for i in range(-4,4) if x+i >=0 and x+i <=6 and y+i >= 0 and y+i <= 5 ],
-      [ (x+i, y-i) for i in range(-4,4) if x+i >=0 and x+i <=6 and y-i >= 0 and y-i <= 5 ]
+      [ (i,y) for i in range(x-3, x+4) if i >=0 and i <=6 ],
+      [ (x+i, y+i) for i in range(-3,4) if x+i >=0 and x+i <=6 and y+i >= 0 and y+i <= 5 ],
+      [ (x+i, y-i) for i in range(-3,4) if x+i >=0 and x+i <=6 and y-i >= 0 and y-i <= 5 ]
     ]
+    print(linesToTry[1])
     for lineToTry in linesToTry:
       count = 0
       for coord in lineToTry:

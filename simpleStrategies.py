@@ -11,7 +11,7 @@ if nnName == "0":
 else:
   nnName += ".gen"
 print("Who goes first?")
-firstPlayer = input("0-AI, 1-Person: ")
+firstPlayer = input("0-AI, 1-SimpleStrat: ")
 
 file = open(nnName)
 genome = Genome.GenomeFactory(file.read())
