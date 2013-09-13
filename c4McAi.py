@@ -40,7 +40,7 @@ class C4MCAI(object):
         'score': config.startingScore,
         'attempts': config.startingAttempts})
     
-    for _ in range(config.simulations):
+    for x in range(config.simulations):
       possibleFirstMoves = [move for move in possibleNextMoves]
       while len(possibleFirstMoves) > config.movePool:
         possibleFirstMoves.remove(random.choice(possibleFirstMoves))
@@ -86,6 +86,7 @@ class C4MCAI(object):
       for move in moves:
         if iteration < config.nnMcDepth:
           score = self.evaluate([i for row in move['board'] for i in row])
+          iteration += 1
         else:
           score = random.random()
         if score > bestScore:

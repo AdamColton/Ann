@@ -72,7 +72,6 @@ class Game(object):
       [ (x+i, y+i) for i in range(-3,4) if x+i >=0 and x+i <=6 and y+i >= 0 and y+i <= 5 ],
       [ (x+i, y-i) for i in range(-3,4) if x+i >=0 and x+i <=6 and y-i >= 0 and y-i <= 5 ]
     ]
-    print(linesToTry[0])
     for lineToTry in linesToTry:
       count = 0
       for coord in lineToTry:

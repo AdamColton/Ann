@@ -12,11 +12,32 @@ if config.aiLibrary == AiLibraries.c4Ai:
 elif config.aiLibrary == AiLibraries.c4McAi:
   import c4McAi
   aiLibrary = c4McAi.C4MCAI
+  
+class Monkey:
+  def takeTurn(self, game):
+    makeMonkeyMove(game)
+
+class MonteCarlo:
+  def takeTurn(self, game):
+    makeMcMonkeyMove(game)
 
 def makeMonkeyMove(game):
-  possibleNextMoves = game.getAllMoveIds()
-  move = random.choice(possibleNextMoves)
-  game.makeMove(move)
+  game.makeMove( random.choice(game.getAllMoveIds()) )
+  
+def makeMcMonkeyMove(game):
+  possibleNextMoves = {move:[0, 1] for move in game.getAllMoveIds()}
+  possibleNextMovesKeys = [key for key in possibleNextMoves.keys()]
+  for _ in range(config.simulations):
+    move = random.choice(possibleNextMovesKeys)
+    mcBoard = game.copy()
+    mcBoard.makeMove(move)
+    possibleNextMoves[move][1] += 1
+    while not mcBoard.gameOver:
+      makeMonkeyMove(mcBoard)
+    if mcBoard.winner == game.turn: possibleNextMoves[move][0] += 1
+  weightedMoves = [(possibleNextMoves[move][0]*1.0/possibleNextMoves[move][1],move) for move in possibleNextMovesKeys]
+  weightedMoves.sort()
+  game.makeMove(weightedMoves[-1][1])
   
 def gameLoop(genomeString, responses, iterations, display):
   playerToIntMap = ['white', 'black', 'draw']
